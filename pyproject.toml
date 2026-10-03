@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wit-backup"
+version = "1.0.0"
+description = "A custom backup solution for a local fileserver with dual disk layout."
+readme = "README.md"
+authors = [
+    { name = "Juan Pablo Ramirez", email = "juanpablo@ramirezperegrina.com" }
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+# Define your server's dependencies here:
+dependencies = []
+
+[project.scripts]
+# This automatically creates a terminal command on your server!
+# Format: command_name = "package.module:function"
+run-backup = "wit_backup.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
