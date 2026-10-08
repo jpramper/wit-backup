@@ -1,8 +1,18 @@
-# compiled python files
+# compiled python files cache
 __pycache__/
+
+# build staging
+build/
+dist/
 
 # local test folder
 testfolders
+
+# unit tests cache
+.pytest_cache
+
+# unit test coverage files
+.coverage
 
 # python virtual environment
 .venv
