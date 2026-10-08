@@ -1,4 +1,5 @@
-# Copyright Juan Pablo Ramirez 2026
+# Copyright 2026 Juan Pablo Ramirez
+# SPDX-License-Identifier: MIT
 
 from pathlib import Path
 from logging import debug, info
@@ -31,13 +32,14 @@ def clean_target(dest: Path) -> None:
 
 
 def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
-  """ Traverses through <target> tree, removing folders not present in <origin>
+  """ Traverses through <target> tree, removing folders not present in <origin>.
+  It purposely does not remove files since that would nuke all backup/index files in target.
   """
   for item in target_dir.iterdir():
     origin_equivalent = Path(origin_dir, item.name)
 
     if item.is_dir() and not origin_equivalent.exists():
-      info(f"{item} is not in {origin_dir}; removing.")
+      info(f"Folder {item} is not in {origin_dir}; removing.")
       if item.is_symlink():
         item.unlink()
       else:
@@ -73,7 +75,6 @@ def traverse_recursive_backup(origin_dir: Path, target_dir: Path) -> None:
   and backing up where indexes mismatch.
   """
   debug(f"===== traversing: {origin_dir}, {len(list(origin_dir.iterdir()))} items")
-
   for item in origin_dir.iterdir():
     debug(f"{"d" if item.is_dir() else "f"} {Path(item.name)} ")
 
@@ -81,6 +82,8 @@ def traverse_recursive_backup(origin_dir: Path, target_dir: Path) -> None:
   # compare index, store as "changed" if differ (return boolean)
   changed = indexes_mismatch(origin_index, target_dir)
   debug(f"mismatched: {changed}")
+
+  target_dir.mkdir(parents=True, exist_ok=True) # ensure target counterpart exists
 
   if changed:
     write_index(origin_index, target_dir)

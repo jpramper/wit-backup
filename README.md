@@ -8,12 +8,11 @@ This program can recursively remove directories:
 ## Local Development Environment Setup
 Setup a python virtual environment on project root:
 ```
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
+Then install the project in editable mode (this includes dev dependencies):
 ```
-Then install the project in editable mode:
-```
-pip install -e .
+pip install -e ".[dev]"
 ```
 You'll be able to edit the source and run the project with
 ```

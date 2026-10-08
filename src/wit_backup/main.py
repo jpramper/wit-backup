@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright Juan Pablo Ramirez 2026
+# Copyright 2026 Juan Pablo Ramirez
+# SPDX-License-Identifier: MIT
 
 import logging
 

@@ -1,4 +1,5 @@
-# Copyright Juan Pablo Ramirez 2026
+# Copyright 2026 Juan Pablo Ramirez
+# SPDX-License-Identifier: MIT
 
 from pathlib import Path
 from argparse import (

@@ -7,6 +7,7 @@ name = "wit-backup"
 version = "1.0.0"
 description = "A custom backup solution for a local fileserver with dual disk layout."
 readme = "README.md"
+license = "MIT"
 authors = [
     { name = "Juan Pablo Ramirez", email = "juanpablo@ramirezperegrina.com" }
 ]
@@ -21,7 +22,7 @@ dependencies = []
 [project.scripts]
 # This automatically creates a terminal command on your server!
 # Format: command_name = "package.module:function"
-run-backup = "wit_backup.main:main"
+wit-backup = "wit_backup.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,4 +1,5 @@
-# Copyright Juan Pablo Ramirez 2026
+# Copyright 2026 Juan Pablo Ramirez
+# SPDX-License-Identifier: MIT
 
 import logging
 from pathlib import Path
@@ -58,8 +59,9 @@ def read_index(index_path: Path) -> dict:
   
   with open(index_path, "r") as i:
     for line in i:
-      name, hash = line.split("/")
-      index[name] = hash.rstrip("\n")
+      if len(line.split("/")) == 2: # protection against empty lines
+        name, hash = line.split("/")
+        index[name] = hash.rstrip("\n")
   
   logging.debug(f"reading index at {index_path}; {len(index)} items")
   return index
