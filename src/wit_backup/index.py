@@ -1,10 +1,15 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+# Index file manipulation. Indexes are files created on every folder of the target with 
+# filenames/hashes of files zipped in that folder.
+
 import logging
 from pathlib import Path
 from hashlib import file_digest
 
+# Filename for index files. Note if this changes, backups made before the change with a different
+# filename will fail to find previous indexes and will re-backup everything.
 INDEX_FILE = "_backup_index_"
 
 

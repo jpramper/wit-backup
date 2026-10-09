@@ -10,6 +10,7 @@ Setup a python virtual environment on project root:
 ```
 python -m venv .venv
 source .venv/bin/activate
+```
 Then install the project in editable mode (this includes dev dependencies):
 ```
 pip install -e ".[dev]"
@@ -21,6 +22,13 @@ python -m wit_backup.main [opts] <origin> <target>
 
 Exit venv with "deactivate".
 
+## Unit Tests
+
+After setting up the dev env above, just run
+```
+pytest
+```
+
 ## Running Locally
 
 Run with 
@@ -28,9 +36,10 @@ Run with
 wit-backup [opts] origin destination
 ```
 - opts: 
-  - -v for verbosity
-  - -d to delete destination folder before backup (careful!)
-- origin: Path to folder to backup.
+  - -r restore a backup instead of creating a new backup
+  - -d delete destination folder before backup (careful!)
+  - -v added verbosity
+- origin: Path to folder to backup or restore from.
 - destination: Path to destination folder. May not exist and will be created.
 
 ## Logic

@@ -1,6 +1,8 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+# Core backup functionality.
+
 from pathlib import Path
 from logging import debug, info
 from shutil import rmtree
