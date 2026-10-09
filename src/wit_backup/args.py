@@ -55,7 +55,7 @@ def parse_args () -> Namespace:
         action="store_true",
     )
     parser.add_argument("-d", "--delete",
-        help="Clean target folder before starting backup.",
+        help="Clean target folder before starting operations. CAUTION: recursive.",
         action="store_true"
     )
     parser.add_argument("-v", "--verbose",
