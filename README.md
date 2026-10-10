@@ -26,7 +26,7 @@ Exit venv with "deactivate".
 
 After setting up the dev env above, just run
 ```
-pytest
+pytest --cov-report=term-missing
 ```
 
 ## Running Locally
