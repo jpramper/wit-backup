@@ -20,7 +20,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "pytest-cov>=7"]
+dev = ["build", "pytest>=7", "pytest-cov>=7"]
 
 [project.scripts]
 # This automatically creates a terminal command on your server!
