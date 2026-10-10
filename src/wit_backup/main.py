@@ -80,5 +80,9 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
+def run():
     exit(main())
+
+
+if __name__ == "__main__":
+    run()

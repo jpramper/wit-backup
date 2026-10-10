@@ -30,15 +30,17 @@ def create_index(dir: Path) -> dict:
     return index
 
 
-def write_index(index: dict, dir: Path) -> bool:
-    """ Write a file index dictionary to fs. overwrites if preexisting.
+def write_index(index: dict, dir: Path) -> Path:
+    """ 
+    Write a file index dictionary to fs. overwrites if preexisting.
+    Returns the Path to the index.
     """
     index_filename = Path(dir, INDEX_FILE)
     # if no files, write empty index to signal folder was checked
     if len(index) == 0:
         index_filename.touch()
         logging.debug(f"wrote EMPTY index for folder: {dir}")
-        return True
+        return index_filename
 
     # write every dict item to new (overwrite) index file
     with open(index_filename, "w") as index_file:
@@ -46,7 +48,7 @@ def write_index(index: dict, dir: Path) -> bool:
             index_file.write(f"{key}/{val}\n")
 
     logging.debug(f"wrote index for folder: {dir}")
-    return True
+    return index_filename
 
 
 def read_index(index_path: Path) -> dict:
@@ -62,6 +64,9 @@ def read_index(index_path: Path) -> dict:
     if not index_path.exists() or index_path.name != INDEX_FILE:
         return index
 
+    if not index_path.is_file():
+        raise IsADirectoryError(f"{index_path} is not a file")
+
     try:
       with open(index_path, "r") as i:
           for line in i:
@@ -70,7 +75,6 @@ def read_index(index_path: Path) -> dict:
                   index[name] = hash.rstrip("\n")
     except Exception as e:
         logging.info(f"corrupted index at {index_path}")
-    finally:
         index = dict()
     
     logging.debug(f"read index at {index_path}; {len(index)} items")
@@ -78,7 +82,9 @@ def read_index(index_path: Path) -> dict:
 
 
 def indexes_mismatch(origin_index: dict, target_dir: Path) -> bool:
-    """ Compare an origin file index with an unknown target dir. Returns true if mismatch.
+    """ 
+    Compare an origin file index with an index in an unknown target dir. 
+    Returns true if mismatch.
     """
     # get what should be the target index file and check existence
     target_index_file = Path(target_dir, INDEX_FILE)
