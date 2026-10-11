@@ -10,7 +10,7 @@ from hashlib import file_digest
 
 # Filename for index files. Note if this changes, backups made before the change with a different
 # filename will fail to find previous indexes and will re-backup everything.
-INDEX_FILE = "_backup_index_"
+INDEX_FILE = "_index_"
 
 
 def create_index(dir: Path) -> dict:

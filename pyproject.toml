@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wit-backup"
-version = "1.0.0"
+version = "1.1.0"
 description = "A custom backup solution for a local fileserver with dual disk layout."
 readme = "README.md"
 license = "MIT"

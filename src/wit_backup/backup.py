@@ -18,7 +18,7 @@ from .index import (
 BACKUP_FILE = "_backup_.zip"
 
 
-def clean_target(dest: Path) -> None:
+def clean_target (dest: Path) -> None:
     """ Ensures target directory is empty, if it exists.
     """
     info(f"Cleaning target dir: {dest.resolve()}")
@@ -57,7 +57,7 @@ def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
             remove_target_outliers(item, origin_equivalent)
 
 
-def reflect_directory_structure(origin_dir: Path, target_dir: Path) -> None:
+def reflect_directory_structure (origin_dir: Path, target_dir: Path) -> None:
     """ Ensures <target> folders exist in <origin>.
     """
     for item in origin_dir.iterdir():
@@ -67,12 +67,12 @@ def reflect_directory_structure(origin_dir: Path, target_dir: Path) -> None:
             reflect_directory_structure(item, target_equivalent)
 
 
-def zip_contents(origin_dir: Path, target_dir: Path) -> Path:
+def zip_contents (origin_dir: Path, target_dir: Path) -> Path:
     """ 
     Zips all files in origin to dest.
     Returns a path to the zipfile if created. Empty Path if no zipfile was created.
     """
-    info(f"Zipping {origin_dir} to {target_dir / BACKUP_FILE}.")
+    info(f"Zipping {target_dir / BACKUP_FILE}.")
     zip_file = Path(target_dir, BACKUP_FILE)
 
     if origin_dir.resolve() == target_dir.resolve():
@@ -95,7 +95,8 @@ def zip_contents(origin_dir: Path, target_dir: Path) -> Path:
 
     return zip_file
 
-def traverse_recursive_backup(origin_dir: Path, target_dir: Path) -> None:
+
+def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
     """ 
     Main backup logic. Iterates recursively through folders comparing indexes
     and backing up where indexes mismatch.

@@ -10,12 +10,13 @@ from wit_backup.args import (
     origin_path,
     target_path,
     validate_origin_target,
+    wary_backup_check,
     parse_args,
 )
 
 
 class TestOriginPath: 
-    """Tests for origin_path function.
+    """ Tests for origin_path function.
     """
 
     def test_returns_path_for_existing_directory(self, tmp_path: Path) -> None:
@@ -43,7 +44,7 @@ class TestOriginPath:
 
 
 class TestTargetPath:
-    """Tests for target_path function.
+    """ Tests for target_path function.
     """
 
     def test_returns_path_for_existing_directory(self, tmp_path: Path) -> None:
@@ -68,7 +69,7 @@ class TestTargetPath:
 
 
 class TestValidateOriginTarget:
-    """Tests for validate_origin_target function.
+    """ Tests for validate_origin_target function.
     """
 
     def test_raises_when_origin_target_are_equal(self, tmp_path: Path) -> None:
@@ -87,8 +88,41 @@ class TestValidateOriginTarget:
         validate_origin_target(origin, target)
 
 
+class TestWaryBackupCheck:
+    """ Tests for wary_backup_check function.
+    """
+
+    def test_returns_true_origin_empty_target_content(self, tmp_path: Path) -> None:
+        origin = (tmp_path / "origin")
+        target = (tmp_path / "target")
+        origin.mkdir()
+        target.mkdir()
+        (target / "file_a.txt").write_text("content")
+
+        assert wary_backup_check(origin, target) is True
+
+    def test_returns_false_origin_content_target_content(self, tmp_path: Path) -> None:
+        origin = (tmp_path / "origin")
+        target = (tmp_path / "target")
+        origin.mkdir()
+        target.mkdir()
+        (origin / "file_a.txt").write_text("content")
+        (target / "file_b.txt").write_text("content")
+
+        assert wary_backup_check(origin, target) is False
+
+    def test_returns_false_origin_content_target_empty(self, tmp_path: Path) -> None:
+        origin = (tmp_path / "origin")
+        target = (tmp_path / "target")
+        origin.mkdir()
+        target.mkdir()
+        (origin / "file_a.txt").write_text("content")
+
+        assert wary_backup_check(origin, target) is False
+
+
 class TestParseArgs:
-    """Tests for parse_args function.
+    """ Tests for parse_args function.
     """
 
     def test_restore_default_false(self, tmp_path: Path) -> None:

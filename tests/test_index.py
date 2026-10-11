@@ -14,7 +14,7 @@ from wit_backup.index import (
 
 
 class TestCreateIndex:
-    """Tests for create_index function.
+    """ Tests for create_index function.
     """
 
     def test_creates_index_with_files(self, tmp_path: Path) -> None:
@@ -66,7 +66,7 @@ class TestCreateIndex:
 
 
 class TestWriteIndex:
-    """Tests for write_index function.
+    """ Tests for write_index function.
     """
 
     def test_writes_empty_file_when_index_empty(self, tmp_path: Path) -> None:
@@ -99,7 +99,7 @@ class TestWriteIndex:
 
 
 class TestReadIndex:
-    """Tests for read_index function.
+    """ Tests for read_index function.
     """
 
     def test_raises_when_index_not_file(self, tmp_path: Path) -> None:
@@ -163,7 +163,7 @@ class TestReadIndex:
 
 
 class TestIndexesMismatch:
-    """Tests for indexes_mismatch function.
+    """ Tests for indexes_mismatch function.
     """
     
     def test_return_true_when_origin_target_differ(self, tmp_path: Path) -> None:

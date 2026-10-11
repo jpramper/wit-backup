@@ -6,7 +6,11 @@
 import logging
 from pathlib import Path
 
-from .args import parse_args, validate_origin_target
+from .args import (
+    parse_args, 
+    validate_origin_target,
+    wary_backup_check,
+)
 from .backup import (
     clean_target,
     remove_target_outliers,
@@ -15,10 +19,16 @@ from .backup import (
 )
 
 
-def backup(origin: Path, target: Path) -> int:
+def backup(origin: Path, target: Path, wary: bool = False) -> int:
     """Top-level backup logic.
     """
     logging.info("Backup started.")
+    target.mkdir(parents=True, exist_ok=True)
+
+    if wary:
+        if wary_backup_check(origin, target) is True:
+            logging.debug("SUSPICIOUS: origin is empty and target is not. Aborting.")
+            return 5
 
     # First step is to iterate through target to trim those not in origin
     logging.debug("===== Cleaning folders in target not in origin")
@@ -46,7 +56,7 @@ def restore(origin: Path, target: Path) -> int:
     return 0
 
 
-def main() -> int:
+def main() -> int: # pragma: no cover
     """Standard entrypoint
     """
     try:
@@ -65,12 +75,11 @@ def main() -> int:
         if args.delete:
             logging.debug("===== Delete option active; nuking target.")
             clean_target(args.target)
-        args.target.mkdir(parents=True, exist_ok=True)
 
         if args.restore:
             restore(args.origin, args.target)
         else:
-            backup(args.origin, args.target)
+            backup(args.origin, args.target, args.wary)
 
     except Exception as e:
         # unexpected issues; extra logging for debugging
@@ -80,9 +89,9 @@ def main() -> int:
     return 0
 
 
-def run():
+def run(): # pragma: no cover
     exit(main())
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     run()

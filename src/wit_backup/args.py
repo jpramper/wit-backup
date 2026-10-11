@@ -12,7 +12,7 @@ from argparse import (
 
 
 def origin_path (path: str) -> Path:
-    """Validation for origin folder argument.
+    """ Validation for origin folder argument.
     """
     p = Path(path)
 
@@ -25,7 +25,7 @@ def origin_path (path: str) -> Path:
 
 
 def target_path (path: str) -> Path:
-    """Validation for target folder argument.
+    """ Validation for target folder argument.
     """
     p = Path(path)
     
@@ -35,21 +35,37 @@ def target_path (path: str) -> Path:
 
 
 def validate_origin_target (origin: Path, target: Path) -> None:
-    """Validation for both origin & target.
+    """ Validation for both origin & target.
     """
     if origin.resolve() == target.resolve():
         raise ArgumentError(None, "Origin and Target are the same folder")
 
 
+def wary_backup_check (origin: Path, target: Path) -> bool:
+    """ 
+    Validates if origin is empty and target is not, returns true if so.
+    This is important in vase of a main drive failure, so a backup doesnt falsely
+    clean a recurrent target backup to match a currently-empty origin.
+    """
+    if len(list(origin.iterdir())) == 0 and len(list(target.iterdir())) != 0:
+        return True
+
+    return False
+
+
 def parse_args () -> Namespace:
-    """Command-line parser definitions for the module.
+    """ Command-line parser definitions for the module.
     """
     parser = ArgumentParser(
         description="Recursively zips and indexes every folder from origin into target.",
         usage="%(prog)s [opts] <origin> <target>"
     )
 
-    # options
+    # plain options
+    parser.add_argument("-w", "--wary",
+        help="Prevent backup if origin is empty and target is not.",
+        action="store_true",
+    )
     parser.add_argument("-r", "--restore",
         help="Perform a restoration instead of backup. Unpacks zips from <origin>'s tree into <target>'s respective folders.",
         action="store_true",
@@ -63,7 +79,7 @@ def parse_args () -> Namespace:
         action="store_true",
     )
 
-    # mandatory paths
+    # mandatory arguments
     parser.add_argument("origin", type=origin_path, 
         help="Must be a directory. Parent folder to create a backup from.",
     )

@@ -16,7 +16,7 @@ from wit_backup.index import INDEX_FILE
 
 
 class TestCleanTarget:
-    """Tests    for clean_target function.
+    """ Tests for clean_target function.
     """
 
     def test_removes_files_in_target(self, tmp_path: Path) -> None:
@@ -54,7 +54,7 @@ class TestCleanTarget:
         assert target.exists()
 
 class TestRemoveTargetOutliers:
-    """Tests for remove_target_outliers function.
+    """ Tests for remove_target_outliers function.
     """
 
     def create_simple_test_folder_structure(self, dir: Path, parent_name: str) -> Path:
@@ -106,7 +106,7 @@ class TestRemoveTargetOutliers:
 
 
 class TestReflectDirectoryStructure:
-    """Tests for reflect_directory_structure function.
+    """ Tests for reflect_directory_structure function.
     """
 
     def test_creates_target_parent_if_not_exists(self, tmp_path: Path) -> None:
@@ -142,7 +142,7 @@ class TestReflectDirectoryStructure:
 
 
 class TestZipContents:
-    """Tests for zip_contents function.
+    """ Tests for zip_contents function.
     """
 
     def test_creates_target_folder_if_not_exists(self, tmp_path: Path) -> None:
@@ -203,22 +203,8 @@ class TestZipContents:
 
 
 class TestTraverseRecursiveBackup:
-    """Tests for traverse_recursive_backup function.
+    """ Tests for traverse_recursive_backup function.
     """
-
-    def create_simple_test_folder_structure(self, dir: Path, parent_name: str) -> Path:
-        """Helper to create a simple folder tree for unit tests to manipulate
-        """
-        work_dir = (dir / parent_name)
-        (work_dir / "subfolder").mkdir(parents=True)
-        (work_dir / "empty_subfolder").mkdir()
-        return work_dir
-
-    def populate_simple_test_folder_structure(self, dir: Path) -> None:
-        """ Adds files to the simple test folder tree. Note needs create_simple_test_folder_structure.
-        """
-        (dir / "file_a.txt").write_text("file A")
-        (dir / "subfolder" / "file_b.txt").write_text("file B")
 
     def test_creates_target_counterpart_if_not_exists(self, tmp_path: Path) -> None:
         origin = (tmp_path / "origin")
@@ -238,9 +224,8 @@ class TestTraverseRecursiveBackup:
 
         assert len(list(target.iterdir()))
 
-    def test_correctly_creates_initial_backup(self, tmp_path: Path) -> None:
-        origin = self.create_simple_test_folder_structure(tmp_path, "origin")
-        self.populate_simple_test_folder_structure(origin)
+    def test_correctly_creates_initial_backup(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+        origin = folder_struct_with_files
         target = tmp_path / "target"
 
         traverse_recursive_backup(origin, target)
@@ -264,13 +249,12 @@ class TestTraverseRecursiveBackup:
             names = zf.namelist()
             assert "file_b.txt" in names
 
-    def test_does_nothing_if_no_changes(self, tmp_path: Path) -> None:
+    def test_does_nothing_if_no_changes(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
         """ 
         This should be a clone of test_correctly_creates_initial_backup
         except it runs traverse_recursive_backup twice
         """
-        origin = self.create_simple_test_folder_structure(tmp_path, "origin")
-        self.populate_simple_test_folder_structure(origin)
+        origin = folder_struct_with_files
         target = tmp_path / "target"
 
         traverse_recursive_backup(origin, target)
@@ -296,10 +280,9 @@ class TestTraverseRecursiveBackup:
             names = zf.namelist()
             assert "file_b.txt" in names
 
-    def test_correctly_updates_existing_backup_new_files(self, tmp_path: Path) -> None:
+    def test_correctly_updates_existing_backup_new_files(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
         # perform first backup
-        origin = self.create_simple_test_folder_structure(tmp_path, "origin")
-        self.populate_simple_test_folder_structure(origin)
+        origin = folder_struct_with_files
         target = tmp_path / "target"
 
         traverse_recursive_backup(origin, target)
