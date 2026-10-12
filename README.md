@@ -43,7 +43,8 @@ wit-backup [opts] <origin> <destination>
   - ```-t``` append UTC timestamps of start/complete at a log file in target root (\<target\>/wb-timestamps.log)
   - ```-r``` restore a backup instead of creating a new backup
   - ```-d``` delete destination folder before backup (careful!)
-  - ```-v``` added verbosity
+  - ```-v``` added verbosity (debug messages added)
+  - ```-q``` reduced verbosity (only errors print)
 - \<origin\> Path to folder to backup or restore from.
 - \<destination\> Path to destination folder. May not exist and will be created.
 

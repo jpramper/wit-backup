@@ -17,10 +17,13 @@ from .backup import (
     reflect_directory_structure,
     traverse_recursive_backup,
 )
-from .log import log_timestamp
+from .log import (
+    configure_logging,
+    log_timestamp,
+)
 
 
-def backup(
+def backup (
         origin: Path, 
         target: Path, 
         wary: bool = False, 
@@ -55,7 +58,7 @@ def backup(
     return 0
 
 
-def restore(origin: Path, target: Path) -> int:
+def restore (origin: Path, target: Path) -> int:
     """ Top-level restore logic.
     """
     logging.info("Restore started.")
@@ -66,17 +69,18 @@ def restore(origin: Path, target: Path) -> int:
     return 0
 
 
-def main() -> int: # pragma: no cover
+def main () -> int: # pragma: no cover
     """ Standard entrypoint
     """
     try:
         args = parse_args()
         validate_origin_target(args.origin, args.target)
 
-        logging.basicConfig(
-            level=logging.DEBUG if args.verbose else logging.INFO,
-            format='%(levelname)s: %(message)s'
-        )
+        configure_logging(
+            verbose=args.verbose, 
+            quiet=args.quiet, 
+            log_file=args.logfile
+            )
 
         logging.info(f"Origin: {args.origin.resolve()}")
         logging.info(f"Target: {args.target.resolve()}")
@@ -89,7 +93,12 @@ def main() -> int: # pragma: no cover
         if args.restore:
             restore(args.origin, args.target)
         else:
-            backup(args.origin, args.target, args.wary)
+            backup(
+                args.origin, 
+                args.target, 
+                wary=args.wary, 
+                timestamp=args.timestamp
+                )
 
     except Exception as e:
         # unexpected issues; extra logging for debugging
@@ -99,7 +108,7 @@ def main() -> int: # pragma: no cover
     return 0
 
 
-def run(): # pragma: no cover
+def run (): # pragma: no cover
     exit(main())
 
 

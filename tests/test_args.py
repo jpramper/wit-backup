@@ -9,6 +9,7 @@ import sys
 from wit_backup.args import (
     origin_path,
     target_path,
+    log_file,
     validate_origin_target,
     wary_backup_check,
     parse_args,
@@ -66,6 +67,31 @@ class TestTargetPath:
             target_path(str(mock_file))
 
         assert "target exists and is not a folder" in (str(exc_info.value))
+
+
+class TestLogFile:
+    """ Tests for log_file function.
+    """
+
+    def test_returns_path_for_nonexisting_file(self, tmp_path: Path) -> None:
+        mock_log = (tmp_path / "log.txt")
+
+        assert isinstance(log_file(str(mock_log)), Path)
+
+    def test_returns_path_for_existing_file(self, tmp_path: Path) -> None:
+        mock_log = (tmp_path / "log.txt")
+        mock_log.write_text("content")
+
+        assert isinstance(log_file(str(mock_log)), Path)
+
+    def test_raises_when_target_is_directory(self, tmp_path: Path) -> None:
+        mock_log = (tmp_path / "log.txt")
+        mock_log.mkdir()
+
+        with raises(ArgumentError) as exc_info:
+            log_file(str(mock_log))
+        
+        assert "logfile exists and is not a writable file" in str(exc_info.value)
 
 
 class TestValidateOriginTarget:
@@ -200,6 +226,21 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
+    def test_quiet_default_false(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target]
+
+            result = parse_args()
+
+            assert result.quiet is False
+        finally:
+            sys.argv = original_argv
+
     def test_allows_setting_up_wary(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -272,6 +313,21 @@ class TestParseArgs:
             result = parse_args()
 
             assert result.verbose is True
+        finally:
+            sys.argv = original_argv
+
+    def test_allows_setting_up_quiet(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-q", origin, target]
+
+            result = parse_args()
+
+            assert result.quiet is True
         finally:
             sys.argv = original_argv
 

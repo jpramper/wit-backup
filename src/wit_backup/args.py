@@ -34,6 +34,17 @@ def target_path (path: str) -> Path:
     return p
 
 
+def log_file (file: str) -> Path:
+    """ Validation for logfile argument.
+    """
+    f = Path(file)
+
+    if f.exists() and not f.is_file():
+        raise ArgumentError(None, "Specified logfile exists and is not a writable file.")
+
+    return f
+
+
 def validate_origin_target (origin: Path, target: Path) -> None:
     """ Validation for both origin & target.
     """
@@ -81,6 +92,15 @@ def parse_args () -> Namespace:
     parser.add_argument("-v", "--verbose",
         help="Print extra diagnostic info.",
         action="store_true",
+    )
+    parser.add_argument("-q", "--quiet",
+        help="Only print error messages.",
+        action="store_true",
+    )
+
+    # options with arguments
+    parser.add_argument("-l", "--logfile", type=log_file,
+        help="Prevent backup if origin is empty and target is not.",
     )
 
     # mandatory arguments
