@@ -17,13 +17,21 @@ from .backup import (
     reflect_directory_structure,
     traverse_recursive_backup,
 )
+from .log import log_timestamp
 
 
-def backup(origin: Path, target: Path, wary: bool = False) -> int:
-    """Top-level backup logic.
+def backup(
+        origin: Path, 
+        target: Path, 
+        wary: bool = False, 
+        timestamp: bool = False
+        ) -> int:
+    """ Top-level backup logic.
     """
     logging.info("Backup started.")
     target.mkdir(parents=True, exist_ok=True)
+    if timestamp:
+        log_timestamp(target, "STARTED")
 
     if wary:
         if wary_backup_check(origin, target) is True:
@@ -42,11 +50,13 @@ def backup(origin: Path, target: Path, wary: bool = False) -> int:
     traverse_recursive_backup(origin, target)
 
     logging.info("Backup completed.")
+    if timestamp:
+        log_timestamp(target, "COMPLETED")
     return 0
 
 
 def restore(origin: Path, target: Path) -> int:
-    """Top-level restore logic.
+    """ Top-level restore logic.
     """
     logging.info("Restore started.")
 
@@ -57,7 +67,7 @@ def restore(origin: Path, target: Path) -> int:
 
 
 def main() -> int: # pragma: no cover
-    """Standard entrypoint
+    """ Standard entrypoint
     """
     try:
         args = parse_args()

@@ -66,6 +66,10 @@ def parse_args () -> Namespace:
         help="Prevent backup if origin is empty and target is not.",
         action="store_true",
     )
+    parser.add_argument("-t", "--timestamp",
+        help="Append start & finish time to a logfile at root of target.",
+        action="store_true",
+    )
     parser.add_argument("-r", "--restore",
         help="Perform a restoration instead of backup. Unpacks zips from <origin>'s tree into <target>'s respective folders.",
         action="store_true",

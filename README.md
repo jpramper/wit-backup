@@ -40,6 +40,7 @@ wit-backup [opts] <origin> <destination>
 - opts: 
   - ```-w``` prevent backup if origin is empty 
        (important if origin's drive fails, to not delete the backup on next run)
+  - ```-t``` append UTC timestamps of start/complete at a log file in target root (\<target\>/wb-timestamps.log)
   - ```-r``` restore a backup instead of creating a new backup
   - ```-d``` delete destination folder before backup (careful!)
   - ```-v``` added verbosity

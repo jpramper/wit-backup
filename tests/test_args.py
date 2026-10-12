@@ -140,6 +140,36 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
+    def test_wary_default_false(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target]
+
+            result = parse_args()
+
+            assert result.wary is False
+        finally:
+            sys.argv = original_argv
+
+    def test_timestamp_default_false(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target]
+
+            result = parse_args()
+
+            assert result.timestamp is False
+        finally:
+            sys.argv = original_argv
+
     def test_delete_default_false(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -167,6 +197,36 @@ class TestParseArgs:
             result = parse_args()
 
             assert result.verbose is False
+        finally:
+            sys.argv = original_argv
+
+    def test_allows_setting_up_wary(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-w", origin, target]
+
+            result = parse_args()
+
+            assert result.wary is True
+        finally:
+            sys.argv = original_argv
+
+    def test_allows_setting_up_timestamp(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-t", origin, target]
+
+            result = parse_args()
+
+            assert result.timestamp is True
         finally:
             sys.argv = original_argv
 

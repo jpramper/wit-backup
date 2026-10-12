@@ -9,23 +9,32 @@ from wit_backup.main import (
 )
 from wit_backup.index import INDEX_FILE
 from wit_backup.backup import BACKUP_FILE
+from wit_backup.log import TIMESTAMP_FILE
 
 
 class TestBackup:
     """ Tests for main backup function.
     """
 
-    def test_basic_backup(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
-            # perform first backup
-            origin = folder_struct_with_files
-            target = tmp_path / "target"
-    
-            backup(origin, target)
-    
-            assert (target / INDEX_FILE).exists()
-            assert (target / BACKUP_FILE).exists()
+    def test_basic_backup(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        # perform first backup
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
 
-    def test_returns_nonzero_when_wary_fullfills(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+        backup(origin, target)
+
+        assert (target / INDEX_FILE).exists()
+        assert (target / BACKUP_FILE).exists()
+
+    def test_returns_nonzero_when_wary_fullfills(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         # perform first backup
         origin = folder_struct_with_files
         target = tmp_path / "target"
@@ -42,6 +51,24 @@ class TestBackup:
                 rmtree(item)
         result = backup(origin, target, wary=True)
 
-        assert result > 0 # ensure non-zero
+        assert result == 5 # ensure non-zero matching wary
         assert (target / INDEX_FILE).exists() # make sure first backup is still there
+
+    def test_logs_timestamps_start_end_when_timestamp_active(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, timestamp=True)
+
+        assert (target / TIMESTAMP_FILE).exists()
+        with open((target / TIMESTAMP_FILE), "r") as l:
+            content = l.read()
+
+            assert "STARTED" in content
+            assert "COMPLETED" in content
+        
 

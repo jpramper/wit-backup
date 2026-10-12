@@ -7,6 +7,7 @@ Changes to wit-backup are logged here.
 
 ### Added 
 - `--wary` option to avoid destructive backups when origin is lost
+- `--timestamp` option to log start and complete time on -target-/wb-timestamps.log
 
 
 ## [1.0.0] - 2026-10-09
