@@ -196,6 +196,21 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
+    def test_log_default_false(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target]
+
+            result = parse_args()
+
+            assert result.log is False
+        finally:
+            sys.argv = original_argv
+
     def test_delete_default_false(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -271,6 +286,21 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
+    def test_allows_setting_up_log(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-l", origin, target]
+
+            result = parse_args()
+
+            assert result.log is True
+        finally:
+            sys.argv = original_argv
+
     def test_allows_setting_up_restore(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -331,6 +361,22 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
+    def test_allows_setting_log_file(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-L", "logfile.txt", origin, target]
+
+            result = parse_args()
+
+            assert log_file is not None
+            assert isinstance(result.log_file, Path)
+        finally:
+            sys.argv = original_argv
+
     def test_defines_origin_target_as_paths(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -344,5 +390,20 @@ class TestParseArgs:
 
             assert isinstance(result.origin, Path)
             assert isinstance(result.target, Path)
+        finally:
+            sys.argv = original_argv
+
+    def test_setting_log_file_also_sets_log(self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", "-L", "logfile.txt", origin, target]
+
+            result = parse_args()
+
+            assert result.log is True
         finally:
             sys.argv = original_argv

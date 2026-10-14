@@ -9,6 +9,12 @@ from argparse import (
     Namespace, 
     ArgumentParser,
 )
+from typing import Optional
+
+from wit_backup.log import (
+    LOG_FILE, 
+    TIMESTAMP_FILE,
+)
 
 
 def origin_path (path: str) -> Path:
@@ -77,8 +83,12 @@ def parse_args () -> Namespace:
         help="Prevent backup if origin is empty and target is not.",
         action="store_true",
     )
+    parser.add_argument("-l", "--log",
+        help=f"Append log messages to a logfile at root of target. Defaults to {LOG_FILE} if -L is not set.",
+        action="store_true",
+    )
     parser.add_argument("-t", "--timestamp",
-        help="Append start & finish time to a logfile at root of target.",
+        help=f"Append start & finish time to a logfile ({TIMESTAMP_FILE}) at root of target.",
         action="store_true",
     )
     parser.add_argument("-r", "--restore",
@@ -99,8 +109,8 @@ def parse_args () -> Namespace:
     )
 
     # options with arguments
-    parser.add_argument("-l", "--logfile", type=log_file,
-        help="Prevent backup if origin is empty and target is not.",
+    parser.add_argument("-L", "--log-file", type=log_file,
+        help="Specify a logfile path to save logs to.",
     )
 
     # mandatory arguments
@@ -111,4 +121,10 @@ def parse_args () -> Namespace:
         help="Must be a directory. Target folder to save backup files."
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # --log-file should also set --log 
+    if args.log_file is not None:
+        args.log = True
+
+    return args

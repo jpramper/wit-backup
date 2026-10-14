@@ -9,11 +9,14 @@ from sys import stdout
 
 
 TIMESTAMP_FILE = "wb-timestamps.log"
+LOG_FILE = "wb-runtime.log"
 
 
 def configure_logging (
+        target: Path,
         verbose: bool = False, 
         quiet: bool = False,
+        log: bool = False,
         log_file: Optional[Path] = None,
         ) -> None: # pragma: no cover
     log_level = logging.INFO
@@ -22,14 +25,16 @@ def configure_logging (
     if quiet:
         logging.ERROR
 
-    handler = logging.StreamHandler(stdout)
+    handlers = [logging.StreamHandler(stdout)]
     if log_file is not None:
-        handler = logging.FileHandler(log_file, mode="a")
+        handlers.append(logging.FileHandler(log_file, mode="a"))
+    elif log:
+        handlers.append(logging.FileHandler((target / LOG_FILE), mode="a"))
 
     logging.basicConfig(
         level=log_level,
         format='%(levelname)s: %(message)s',
-        handlers=[handler]
+        handlers=handlers
     )
 
 
@@ -39,6 +44,6 @@ def log_timestamp (dest: Path, entry: str) -> datetime:
     date_time = datetime.now(timezone.utc).replace(microsecond = 0)
 
     with open(dest / TIMESTAMP_FILE, "a") as ts:
-        ts.write(f"Wit-Backup {entry} - " + str(date_time.replace()) + "\n")
+        ts.write(f"Wit-Backup {entry} - " + str(date_time) + "\n")
 
     return date_time

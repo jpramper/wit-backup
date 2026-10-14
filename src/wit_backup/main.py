@@ -31,10 +31,15 @@ def backup (
         ) -> int:
     """ Top-level backup logic.
     """
-    logging.info("Backup started.")
     target.mkdir(parents=True, exist_ok=True)
+    
     if timestamp:
-        log_timestamp(target, "STARTED")
+        ts_s = log_timestamp(target, "STARTED")
+        logging.info(f"Backup started - {str(ts_s)}")
+    else:
+        logging.info(f"Backup started.")
+    logging.info(f"Origin: {origin.resolve()}")
+    logging.info(f"Target: {target.resolve()}")
 
     if wary:
         if wary_backup_check(origin, target) is True:
@@ -52,9 +57,11 @@ def backup (
     # Iterate through origin folders, indexing and backing up each
     traverse_recursive_backup(origin, target)
 
-    logging.info("Backup completed.")
     if timestamp:
-        log_timestamp(target, "COMPLETED")
+        ts_c = log_timestamp(target, "COMPLETED")
+        logging.info(f"Backup completed - {str(ts_c)}")
+    else:
+        logging.info("Backup completed.")
     return 0
 
 
@@ -77,13 +84,12 @@ def main () -> int: # pragma: no cover
         validate_origin_target(args.origin, args.target)
 
         configure_logging(
+            target=args.target,
             verbose=args.verbose, 
             quiet=args.quiet, 
-            log_file=args.logfile
+            log=args.log,
+            log_file=args.log_file,
             )
-
-        logging.info(f"Origin: {args.origin.resolve()}")
-        logging.info(f"Target: {args.target.resolve()}")
 
         # Clean target if enabled, ensure target exists
         if args.delete:
