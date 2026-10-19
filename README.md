@@ -35,20 +35,22 @@ This program can recursively remove directories: SHOULD NOT BE RUN AS ROOT. Run 
 
 Run with 
 ```
-wit-backup [opts] <origin> <destination>
+wit-backup [opts] <origin> <destination> [<mode>]
 ```
 - opts: 
-  - `-w` prevent backup if origin is empty 
+  - `-w` prevent backup if origin is empty
        (important if origin's drive fails, to not delete the backup on next run)
   - `-t` append UTC timestamps of start/complete at a log file in target root (\<target\>/wb-timestamps.log)
   - `-l` write events into (\<target\>/wb-runtime.log) or if set, wherever `-L` specifies
   - `-L` specify a logfile to write events to. activates `-l` as well if set
-  - `-r` restore a backup instead of creating a new backup
   - `-d` delete destination folder before backup (careful!)
   - `-v` added verbosity (debug messages added)
   - `-q` reduced verbosity (only errors print)
 - \<origin\> Path to folder to backup or restore from.
 - \<destination\> Path to destination folder. May not exist and will be created.
+- \<mode\> defaults to backup
+  - `b` create a backup (default)
+  - `r` restore a backup
 
 ## Local Development Environment Setup
 Setup a python virtual environment on project root:
@@ -76,7 +78,7 @@ python -m wit_backup.main [opts] <origin> <target>
 
 After setting up the dev env above, just run
 ```
-pytest --cov-report=term-missing
+pytest
 ```
 
 ## Local Build

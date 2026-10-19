@@ -6,6 +6,7 @@
 import logging
 from pathlib import Path
 
+from .constants import Mode
 from .args import (
     parse_args, 
     validate_origin_target,
@@ -27,14 +28,14 @@ def backup (
         origin: Path, 
         target: Path, 
         wary: bool = False, 
-        timestamp: bool = False
+        timestamp: bool = False,
         ) -> int:
     """ Top-level backup logic.
     """
     target.mkdir(parents=True, exist_ok=True)
-    
+
     if timestamp:
-        ts_s = log_timestamp(target, "STARTED")
+        ts_s = log_timestamp(target, Mode.BACKUP.value, "STARTED")
         logging.info(f"Backup started - {str(ts_s)}")
     else:
         logging.info(f"Backup started.")
@@ -58,21 +59,40 @@ def backup (
     traverse_recursive_backup(origin, target)
 
     if timestamp:
-        ts_c = log_timestamp(target, "COMPLETED")
+        ts_c = log_timestamp(target, Mode.BACKUP.value, "COMPLETED")
         logging.info(f"Backup completed - {str(ts_c)}")
     else:
         logging.info("Backup completed.")
+
     return 0
 
 
-def restore (origin: Path, target: Path) -> int:
+def restore (
+        origin: Path, 
+        target: Path,
+        wary: bool = False, 
+        timestamp: bool = False,
+        ) -> int:
     """ Top-level restore logic.
     """
-    logging.info("Restore started.")
+    target.mkdir(parents=True, exist_ok=True)
 
-    
+    if timestamp:
+        ts_s = log_timestamp(target, Mode.RESTORE.value, "STARTED")
+        logging.info(f"Restore started - {str(ts_s)}")
+    else:
+        logging.info(f"Restore started.")
+    logging.info(f"Origin: {origin.resolve()}")
+    logging.info(f"Target: {target.resolve()}")
 
-    logging.info("Restore completed.")
+    pass
+
+    if timestamp:
+        ts_c = log_timestamp(target, Mode.RESTORE.value, "COMPLETED")
+        logging.info(f"Restore completed - {str(ts_c)}")
+    else:
+        logging.info("Restore completed.")
+
     return 0
 
 
@@ -96,8 +116,13 @@ def main () -> int: # pragma: no cover
             logging.debug("===== Delete option active; nuking target.")
             clean_target(args.target)
 
-        if args.restore:
-            restore(args.origin, args.target)
+        if args.mode == Mode.RESTORE:
+            restore(
+                args.origin, 
+                args.target,
+                wary=args.wary,
+                timestamp=args.timestamp,
+                )
         else:
             backup(
                 args.origin, 

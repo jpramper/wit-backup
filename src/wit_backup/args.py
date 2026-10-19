@@ -6,12 +6,14 @@
 from pathlib import Path
 from argparse import (
     ArgumentError, 
+    ArgumentTypeError,
     Namespace, 
     ArgumentParser,
 )
 from typing import Optional
 
-from wit_backup.log import (
+from .constants import Mode
+from .log import (
     LOG_FILE, 
     TIMESTAMP_FILE,
 )
@@ -24,9 +26,9 @@ def origin_path (path: str) -> Path:
 
     if not p.exists():
         raise FileNotFoundError(f"'{path}' does not exist")
-    
     if not p.is_dir():
         raise NotADirectoryError(f"'{path}' is not a directory")
+    
     return p
 
 
@@ -37,7 +39,28 @@ def target_path (path: str) -> Path:
     
     if p.exists() and not p.is_dir():
         raise ArgumentError(None, f"'{path}' as target exists and is not a folder")
+    
     return p
+
+
+def mode_arg (mode: str) -> Mode:
+    """ Validation for optional mode argument. 
+
+    Returns:
+        Program mode, default BACKUP.
+    """
+    aliases = {
+        'b': Mode.BACKUP,
+        "backup": Mode.BACKUP,
+        'r': Mode.RESTORE,
+        "restore": Mode.RESTORE,
+    }
+    normalized = mode.lower()
+
+    if normalized not in aliases:
+        raise ArgumentTypeError(f"Mode must be 'b'/'backup' or 'r'/'restore' and is {mode}")
+
+    return aliases[normalized]
 
 
 def log_file (file: str) -> Path:
@@ -91,10 +114,6 @@ def parse_args () -> Namespace:
         help=f"Append start & finish time to a logfile ({TIMESTAMP_FILE}) at root of target.",
         action="store_true",
     )
-    parser.add_argument("-r", "--restore",
-        help="Perform a restoration instead of backup. Unpacks zips from <origin>'s tree into <target>'s respective folders.",
-        action="store_true",
-    )
     parser.add_argument("-d", "--delete",
         help="Clean target folder before starting operations. CAUTION: recursive.",
         action="store_true"
@@ -119,6 +138,11 @@ def parse_args () -> Namespace:
     )
     parser.add_argument("target", type=target_path,
         help="Must be a directory. Target folder to save backup files."
+    )
+
+    # optional arguments
+    parser.add_argument("mode", type=mode_arg, default=Mode.BACKUP, nargs="?",
+        help="[OPTIONAL] 'b'/'backup' for backup (default) or 'r'/'restore' for restore mode.",
     )
 
     args = parser.parse_args()

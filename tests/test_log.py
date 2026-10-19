@@ -4,6 +4,7 @@
 from pathlib import Path
 from datetime import datetime, timezone
 
+from wit_backup.constants import Mode
 from wit_backup.log import (
     log_timestamp,
     TIMESTAMP_FILE,
@@ -15,7 +16,7 @@ class TestLogTimestamp:
     """
 
     def test_creates_logfile_if_not__exist(self, tmp_path: Path) -> None:
-        log_timestamp(tmp_path, "START")
+        log_timestamp(tmp_path, "mode", "START")
 
         assert (tmp_path / TIMESTAMP_FILE).exists()
 
@@ -23,12 +24,12 @@ class TestLogTimestamp:
         ts_file = (tmp_path / TIMESTAMP_FILE)
         ts_file.write_text("bang")
 
-        log_timestamp(tmp_path, "START")
+        log_timestamp(tmp_path, "mode", "START")
 
         assert "bang" in ts_file.read_text()
 
     def test_returns_current_datetime_UTC(self, tmp_path: Path) -> None:
-        dt = log_timestamp(tmp_path, "START")
+        dt = log_timestamp(tmp_path, "mode", "START")
 
         now = datetime.now(timezone.utc)
 
@@ -37,7 +38,7 @@ class TestLogTimestamp:
 
     def test_includes_entry_and_date(self, tmp_path: Path) -> None:
         entry = "START"
-        time = log_timestamp(tmp_path, entry)
+        time = log_timestamp(tmp_path, "mode", entry)
 
         with open((tmp_path / TIMESTAMP_FILE), "r") as l:
             content = l.read()

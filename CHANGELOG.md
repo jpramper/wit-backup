@@ -5,8 +5,11 @@ Changes to wit-backup are logged here.
 
 ## [Unreleased]
 
+### Removed
+- restore option flag
+
 ### Added
-- 
+- \<mode\> optional argument, defaults to backup and controls program mode.
 
 
 ## [1.1.0] - 2026-10-14

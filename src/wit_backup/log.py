@@ -38,12 +38,15 @@ def configure_logging (
     )
 
 
-def log_timestamp (dest: Path, entry: str) -> datetime:
-    """ Logs a timestamp onto the timestamp log with the received entry.
+def log_timestamp (dest: Path, mode: str, entry: str) -> datetime:
+    """ Logs a timestamp onto the timestamp log file with the received entry.
+
+    Returns:
+        (datetime) time stamped on the log
     """
     date_time = datetime.now(timezone.utc).replace(microsecond = 0)
 
     with open(dest / TIMESTAMP_FILE, "a") as ts:
-        ts.write(f"Wit-Backup {entry} - " + str(date_time) + "\n")
+        ts.write(f"Wit-Backup {mode} {entry} - " + str(date_time) + "\n")
 
     return date_time

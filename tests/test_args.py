@@ -3,12 +3,17 @@
 
 from pytest import raises
 from pathlib import Path
-from argparse import ArgumentError
+from argparse import (
+    ArgumentError,
+    ArgumentTypeError,
+)
 import sys
 
+from wit_backup.constants import Mode
 from wit_backup.args import (
     origin_path,
     target_path,
+    mode_arg,
     log_file,
     validate_origin_target,
     wary_backup_check,
@@ -114,6 +119,38 @@ class TestValidateOriginTarget:
         validate_origin_target(origin, target)
 
 
+class TestModeArg:
+    """ Tests for mode_arg function.
+    """
+
+    def test_raises_when_mode_incorrect (self) -> None:
+        mode = "fandango"
+
+        with raises(ArgumentTypeError) as exc_info:
+            mode_arg(mode)
+
+        assert "Mode must be" in str(exc_info.value)
+
+    def test_allows_setting_backup (self) -> None:
+        mode = 'b'
+        result = mode_arg(mode)
+        assert Mode.BACKUP == result
+
+        mode = "backup"
+        result = mode_arg(mode)
+        assert Mode.BACKUP == result
+
+    def test_allows_setting_restore (self) -> None:
+        mode = 'r'
+        result = mode_arg(mode)
+        assert Mode.RESTORE == result
+
+        mode = "restore"
+        result = mode_arg(mode)
+        assert Mode.RESTORE == result
+
+
+
 class TestWaryBackupCheck:
     """ Tests for wary_backup_check function.
     """
@@ -151,7 +188,7 @@ class TestParseArgs:
     """ Tests for parse_args function.
     """
 
-    def test_restore_default_false(self, tmp_path: Path) -> None:
+    def test_default_mode_backup (self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
         (tmp_path / "origin").mkdir()
@@ -162,7 +199,41 @@ class TestParseArgs:
 
             result = parse_args()
 
-            assert result.restore is False
+            assert result.mode is Mode.BACKUP
+        finally:
+            sys.argv = original_argv
+
+    def test_allows_setting_mode_backup (self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target, 'b']
+            result = parse_args()
+            assert result.mode is Mode.BACKUP
+
+            sys.argv = ["prog", origin, target, 'backup']
+            result = parse_args()
+            assert result.mode is Mode.BACKUP
+        finally:
+            sys.argv = original_argv
+
+    def test_allows_setting_mode_restore (self, tmp_path: Path) -> None:
+        origin = str(tmp_path / "origin")
+        target = str(tmp_path / "target")
+        (tmp_path / "origin").mkdir()
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["prog", origin, target, 'r']
+            result = parse_args()
+            assert result.mode is Mode.RESTORE
+
+            sys.argv = ["prog", origin, target, 'restore']
+            result = parse_args()
+            assert result.mode is Mode.RESTORE
         finally:
             sys.argv = original_argv
 
@@ -301,21 +372,6 @@ class TestParseArgs:
         finally:
             sys.argv = original_argv
 
-    def test_allows_setting_up_restore(self, tmp_path: Path) -> None:
-        origin = str(tmp_path / "origin")
-        target = str(tmp_path / "target")
-        (tmp_path / "origin").mkdir()
-
-        original_argv = sys.argv
-        try:
-            sys.argv = ["prog", "-r", origin, target]
-
-            result = parse_args()
-
-            assert result.restore is True
-        finally:
-            sys.argv = original_argv
-
     def test_allows_setting_up_delete(self, tmp_path: Path) -> None:
         origin = str(tmp_path / "origin")
         target = str(tmp_path / "target")
@@ -384,7 +440,7 @@ class TestParseArgs:
 
         original_argv = sys.argv
         try:
-            sys.argv = ["prog", "-r", origin, target]
+            sys.argv = ["prog", origin, target]
 
             result = parse_args()
 
