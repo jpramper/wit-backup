@@ -4,6 +4,8 @@ Backup program for Wit (personal file server)
 
 Backup is done on a per-folder basis: Files in every folder in the origin will be zipped into a single zip file into the respective folder in the destination, and an index file with files/hashes included in the zip will be created. 
 
+Restoration will restore the folder structure as it was backed up onto the specified target.
+
 
 ```
 origin
@@ -38,12 +40,12 @@ Run with
 wit-backup [opts] <origin> <destination> [<mode>]
 ```
 - opts: 
-  - `-w` prevent backup if origin is empty
-       (important if origin's drive fails, to not delete the backup on next run)
-  - `-t` append UTC timestamps of start/complete at a log file in target root (\<target\>/wb-timestamps.log)
+  - `-w` prevent backup if origin is empty. prevent restore if target is not empty.
+       (important if origin's drive fails, to not delete the backup on next backup run)
+  - `-t` append UTC timestamps of operation start/complete at a log file in target root (\<target\>/wb-timestamps.log)
   - `-l` write events into (\<target\>/wb-runtime.log) or if set, wherever `-L` specifies
   - `-L` specify a logfile to write events to. activates `-l` as well if set
-  - `-d` delete destination folder before backup (careful!)
+  - `-d` delete destination folder before backup/restore (careful!)
   - `-v` added verbosity (debug messages added)
   - `-q` reduced verbosity (only errors print)
 - \<origin\> Path to folder to backup or restore from.

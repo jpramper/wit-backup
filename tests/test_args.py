@@ -16,7 +16,6 @@ from wit_backup.args import (
     mode_arg,
     log_file,
     validate_origin_target,
-    wary_backup_check,
     parse_args,
 )
 
@@ -148,40 +147,6 @@ class TestModeArg:
         mode = "restore"
         result = mode_arg(mode)
         assert Mode.RESTORE == result
-
-
-
-class TestWaryBackupCheck:
-    """ Tests for wary_backup_check function.
-    """
-
-    def test_returns_true_origin_empty_target_content(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        target = (tmp_path / "target")
-        origin.mkdir()
-        target.mkdir()
-        (target / "file_a.txt").write_text("content")
-
-        assert wary_backup_check(origin, target) is True
-
-    def test_returns_false_origin_content_target_content(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        target = (tmp_path / "target")
-        origin.mkdir()
-        target.mkdir()
-        (origin / "file_a.txt").write_text("content")
-        (target / "file_b.txt").write_text("content")
-
-        assert wary_backup_check(origin, target) is False
-
-    def test_returns_false_origin_content_target_empty(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        target = (tmp_path / "target")
-        origin.mkdir()
-        target.mkdir()
-        (origin / "file_a.txt").write_text("content")
-
-        assert wary_backup_check(origin, target) is False
 
 
 class TestParseArgs:

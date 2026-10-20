@@ -4,96 +4,20 @@
 # SPDX-License-Identifier: MIT
 
 import logging
-from pathlib import Path
 
 from .constants import Mode
 from .args import (
     parse_args, 
     validate_origin_target,
-    wary_backup_check,
 )
-from .backup import (
+from .core import (
     clean_target,
-    remove_target_outliers,
-    reflect_directory_structure,
-    traverse_recursive_backup,
+    backup,
+    restore,
 )
 from .log import (
     configure_logging,
-    log_timestamp,
 )
-
-
-def backup (
-        origin: Path, 
-        target: Path, 
-        wary: bool = False, 
-        timestamp: bool = False,
-        ) -> int:
-    """ Top-level backup logic.
-    """
-    target.mkdir(parents=True, exist_ok=True)
-
-    if timestamp:
-        ts_s = log_timestamp(target, Mode.BACKUP.value, "STARTED")
-        logging.info(f"Backup started - {str(ts_s)}")
-    else:
-        logging.info(f"Backup started.")
-    logging.info(f"Origin: {origin.resolve()}")
-    logging.info(f"Target: {target.resolve()}")
-
-    if wary:
-        if wary_backup_check(origin, target) is True:
-            logging.debug("SUSPICIOUS: origin is empty and target is not. Aborting.")
-            return 5
-
-    # First step is to iterate through target to trim those not in origin
-    logging.debug("===== Cleaning folders in target not in origin")
-    remove_target_outliers(target, origin)
-
-    # Then ensure all folders in origin exist in target
-    logging.debug("===== Mirror origin folder structure into target")
-    reflect_directory_structure(origin, target)
-    
-    # Iterate through origin folders, indexing and backing up each
-    traverse_recursive_backup(origin, target)
-
-    if timestamp:
-        ts_c = log_timestamp(target, Mode.BACKUP.value, "COMPLETED")
-        logging.info(f"Backup completed - {str(ts_c)}")
-    else:
-        logging.info("Backup completed.")
-
-    return 0
-
-
-def restore (
-        origin: Path, 
-        target: Path,
-        wary: bool = False, 
-        timestamp: bool = False,
-        ) -> int:
-    """ Top-level restore logic.
-    """
-    target.mkdir(parents=True, exist_ok=True)
-
-    if timestamp:
-        ts_s = log_timestamp(target, Mode.RESTORE.value, "STARTED")
-        logging.info(f"Restore started - {str(ts_s)}")
-    else:
-        logging.info(f"Restore started.")
-    logging.info(f"Origin: {origin.resolve()}")
-    logging.info(f"Target: {target.resolve()}")
-
-    pass
-
-    if timestamp:
-        ts_c = log_timestamp(target, Mode.RESTORE.value, "COMPLETED")
-        logging.info(f"Restore completed - {str(ts_c)}")
-    else:
-        logging.info("Restore completed.")
-
-    return 0
 
 
 def main () -> int: # pragma: no cover

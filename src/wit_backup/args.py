@@ -81,18 +81,6 @@ def validate_origin_target (origin: Path, target: Path) -> None:
         raise ArgumentError(None, "Origin and Target are the same folder")
 
 
-def wary_backup_check (origin: Path, target: Path) -> bool:
-    """ 
-    Validates if origin is empty and target is not, returns true if so.
-    This is important in vase of a main drive failure, so a backup doesnt falsely
-    clean a recurrent target backup to match a currently-empty origin.
-    """
-    if len(list(origin.iterdir())) == 0 and len(list(target.iterdir())) != 0:
-        return True
-
-    return False
-
-
 def parse_args () -> Namespace:
     """ Command-line parser definitions for the module.
     """

@@ -18,22 +18,6 @@ from .index import (
 BACKUP_FILE = "_backup_.zip"
 
 
-def clean_target (dest: Path) -> None:
-    """ Ensures target directory is empty, if it exists.
-    """
-    info(f"Cleaning target dir: {dest.resolve()}")
-    if not dest.exists():
-        debug("Target did not exist; no need to clean")
-        return
-    for item in dest.iterdir():
-        debug(f"Subfolder {item} in target exists, nuking...")
-        if item.is_dir() and not item.is_symlink():
-            rmtree(item)
-        else:
-            item.unlink()
-    debug("Target cleaned")
-
-
 def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
     """ Traverses through <target> tree, removing folders not present in <origin>.
     It purposely does not remove files since that would nuke all backup/index files in target.
@@ -55,16 +39,6 @@ def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
 
         if item.is_dir():
             remove_target_outliers(item, origin_equivalent)
-
-
-def reflect_directory_structure (origin_dir: Path, target_dir: Path) -> None:
-    """ Ensures <target> folders exist in <origin>.
-    """
-    for item in origin_dir.iterdir():
-        if item.is_dir() and not item.is_symlink():
-            target_equivalent = Path(target_dir, item.name)
-            target_equivalent.mkdir(parents=True, exist_ok=True)
-            reflect_directory_structure(item, target_equivalent)
 
 
 def zip_contents (origin_dir: Path, target_dir: Path) -> Path:

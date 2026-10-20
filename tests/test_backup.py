@@ -5,53 +5,12 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from wit_backup.backup import (
-    clean_target,
     remove_target_outliers,
-    reflect_directory_structure,
     zip_contents,
     traverse_recursive_backup,
     BACKUP_FILE,
 )
 from wit_backup.index import INDEX_FILE
-
-
-class TestCleanTarget:
-    """ Tests for clean_target function.
-    """
-
-    def test_removes_files_in_target(self, tmp_path: Path) -> None:
-        (tmp_path / "file1.txt").write_text("booyah")
-        (tmp_path / "file2.txt").write_text("boom")
-
-        clean_target(tmp_path)
-
-        child_list = list(tmp_path.iterdir())
-        assert len(child_list) == 0
-
-
-    def test_removes_folders_in_target(self, tmp_path: Path) -> None:
-        (tmp_path / "fakefolder").mkdir()
-
-        clean_target(tmp_path)
-
-        child_list = list(tmp_path.iterdir())
-        assert len(child_list) == 0
-
-    def test_does_nothing_when_target_not_exists(self, tmp_path: Path) -> None:
-        target = tmp_path / "false_folder"
-        
-        clean_target(target)
-
-    def test_removes_children_while_keeping_parent(self, tmp_path: Path) -> None:
-        target = tmp_path / "parent"
-        target.mkdir()
-        (target / "filea.txt").write_text("content")
-        (target / "subfolder").mkdir()
-
-        clean_target(target)
-
-        assert len(list(target.iterdir())) == 0
-        assert target.exists()
 
 class TestRemoveTargetOutliers:
     """ Tests for remove_target_outliers function.
@@ -103,42 +62,6 @@ class TestRemoveTargetOutliers:
         remove_target_outliers(target, origin)
 
         assert not (target / "symlink_1").exists()
-
-
-class TestReflectDirectoryStructure:
-    """ Tests for reflect_directory_structure function.
-    """
-
-    def test_creates_target_parent_if_not_exists(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        (origin / "subfolder").mkdir(parents=True)
-        target = (tmp_path / "target")
-
-        reflect_directory_structure(origin, target)
-
-        assert target.exists()
-
-    def test_mirrors_folders_correctly(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        (origin / "subfolder_a").mkdir(parents=True)
-        (origin / "subfolder_b" / "nested").mkdir(parents=True)
-        target = (tmp_path / "target")
-
-        reflect_directory_structure(origin, target)
-
-        assert (target / "subfolder_a").exists()
-        assert (target / "subfolder_b" / "nested").exists()
-
-    def test_ignores_symlinks(self, tmp_path: Path) -> None:
-        origin = (tmp_path / "origin")
-        (origin / "subfolder").mkdir(parents=True)
-        (origin / "symlink").symlink_to(origin / "subfolder")
-        target = (tmp_path / "target")
-
-        reflect_directory_structure(origin, target)
-
-        assert (origin / "symlink").exists()
-        assert not (target / "symlink").exists()
 
 
 class TestZipContents:
