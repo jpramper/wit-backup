@@ -4,10 +4,9 @@
 from pathlib import Path
 from datetime import datetime, timezone
 
-from wit_backup.constants import Mode
+from wit_backup.constants import TIMESTAMP_FILE
 from wit_backup.log import (
     log_timestamp,
-    TIMESTAMP_FILE,
 )
 
 

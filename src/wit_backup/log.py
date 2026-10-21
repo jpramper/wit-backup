@@ -1,15 +1,19 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+""" Logging functionality.
+"""
+
 import logging
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional
 from sys import stdout
 
-
-TIMESTAMP_FILE = "wb-timestamps.log"
-LOG_FILE = "wb-runtime.log"
+from .constants import (
+    LOG_FILE,
+    TIMESTAMP_FILE,
+)
 
 
 def configure_logging (
@@ -21,9 +25,9 @@ def configure_logging (
         ) -> None: # pragma: no cover
     log_level = logging.INFO
     if verbose:
-        logging.DEBUG
+        log_level = logging.DEBUG
     if quiet:
-        logging.ERROR
+        log_level = logging.ERROR
 
     handlers = [logging.StreamHandler(stdout)]
     if log_file is not None:

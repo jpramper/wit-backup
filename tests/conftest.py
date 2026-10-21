@@ -1,6 +1,9 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+""" Custom fixtures for pytest unit tests
+"""
+
 import pytest
 from pathlib import Path
 

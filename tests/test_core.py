@@ -12,9 +12,11 @@ from wit_backup.core import (
     backup,
     restore,
 )
-from wit_backup.index import INDEX_FILE
-from wit_backup.backup import BACKUP_FILE
-from wit_backup.log import TIMESTAMP_FILE
+from wit_backup.constants import (
+    INDEX_FILE,
+    BACKUP_FILE,
+    TIMESTAMP_FILE,
+)
 
 
 class TestReflectDirectoryStructure:
@@ -201,3 +203,24 @@ class TestBackup:
 
             assert "STARTED" in content
             assert "COMPLETED" in content
+
+
+class TestRestore:
+    """ Tests for main restore function.
+    """
+
+    def test_basic_restore(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        # perform first backup
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target)
+
+        assert (target / INDEX_FILE).exists()
+        assert (target / BACKUP_FILE).exists()
+
+        pass

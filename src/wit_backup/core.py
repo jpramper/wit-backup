@@ -1,7 +1,8 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
-# Core functionality used for both backup and restore.
+""" Core functionality used for both backup and restore.
+"""
 
 import logging
 from pathlib import Path
@@ -121,5 +122,31 @@ def restore (
     """ Top-level restore logic.
     """
     target.mkdir(parents=True, exist_ok=True)
+
+    if timestamp:
+        ts_s = log_timestamp(target, Mode.RESTORE.value, "STARTED")
+        logging.info(f"Restore started - {str(ts_s)}")
+    else:
+        logging.info(f"Restore started.")
+    logging.info(f"Origin: {origin.resolve()}")
+    logging.info(f"Target: {target.resolve()}")
+
+    if wary:
+        if wary_restore_check(target) is True:
+            logging.debug("SUSPICIOUS: target is not empty upon restoring. Aborting.")
+            return 6
+
+    # Ensure all folders in origin exist in target
+    logging.debug("===== Mirror origin folder structure into target")
+    reflect_directory_structure(origin, target)
+    
+    # Iterate through origin folders, indexing and restoring each
+    traverse_recursive_restore(origin, target)
+
+    if timestamp:
+        ts_c = log_timestamp(target, Mode.RESTORE.value, "COMPLETED")
+        logging.info(f"Restore completed - {str(ts_c)}")
+    else:
+        logging.info("Restore completed.")
 
     return 0

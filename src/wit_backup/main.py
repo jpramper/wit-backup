@@ -3,6 +3,9 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+""" Main program entry points.
+"""
+
 import logging
 
 from .constants import Mode
@@ -20,7 +23,7 @@ from .log import (
 )
 
 
-def main () -> int: # pragma: no cover
+def main () -> int: 
     """ Standard entrypoint
     """
     try:
@@ -63,9 +66,9 @@ def main () -> int: # pragma: no cover
     return 0
 
 
-def run (): # pragma: no cover
+def run ():
     exit(main())
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":
     run()

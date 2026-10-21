@@ -1,7 +1,8 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
-# Program arguments parsing and validation.
+""" Program arguments parsing and validation.
+"""
 
 from pathlib import Path
 from argparse import (
@@ -12,9 +13,9 @@ from argparse import (
 )
 from typing import Optional
 
-from .constants import Mode
-from .log import (
-    LOG_FILE, 
+from .constants import (
+    Mode,
+    LOG_FILE,
     TIMESTAMP_FILE,
 )
 

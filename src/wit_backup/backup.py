@@ -1,7 +1,8 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
-# Core backup functionality.
+""" Core backup functionality.
+"""
 
 from pathlib import Path
 from logging import debug, info
@@ -13,9 +14,7 @@ from .index import (
     write_index,
     indexes_mismatch,
 )
-
-
-BACKUP_FILE = "_backup_.zip"
+from .constants import BACKUP_FILE
 
 
 def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
@@ -91,8 +90,7 @@ def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
 
     if changed and len(origin_index) > 0:
         debug(f"backing up for {origin_dir}")
-        if (len(origin_index) > 0):
-            zip_contents(origin_dir, target_dir)
+        zip_contents(origin_dir, target_dir)
 
     for item in origin_dir.iterdir():
         if item.is_dir():

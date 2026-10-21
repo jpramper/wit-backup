@@ -5,12 +5,12 @@ from pathlib import Path
 from pytest import raises
 
 from wit_backup.index import (
-    INDEX_FILE,
     create_index,
     write_index,
     read_index,
     indexes_mismatch,
 )
+from wit_backup.constants import INDEX_FILE
 
 
 class TestCreateIndex:
