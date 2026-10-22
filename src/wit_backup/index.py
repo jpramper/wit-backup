@@ -13,11 +13,14 @@ from hashlib import file_digest
 from .constants import INDEX_FILE
 
 
-def create_index(dir: Path) -> dict:
+def create_index (dir: Path) -> dict:
     """ Create an index file with a list of filenames and their hash.
     """
     logging.debug(f"----- creating index for {dir}")
     index = dict()
+
+    if not dir.exists():
+        return index
 
     for item in dir.iterdir():
         if item.is_file():
@@ -30,7 +33,7 @@ def create_index(dir: Path) -> dict:
     return index
 
 
-def write_index(index: dict, dir: Path) -> Path:
+def write_index (index: dict, dir: Path) -> Path:
     """ 
     Write a file index dictionary to fs. overwrites if preexisting.
     Returns the Path to the index.
@@ -51,7 +54,7 @@ def write_index(index: dict, dir: Path) -> Path:
     return index_filename
 
 
-def read_index(index_path: Path) -> dict:
+def read_index (index_path: Path) -> dict:
     """ Read and load a file index to memory.
 
     Args:
@@ -81,7 +84,7 @@ def read_index(index_path: Path) -> dict:
     return index
 
 
-def indexes_mismatch(origin_index: dict, target_dir: Path) -> bool:
+def indexes_mismatch (origin_index: dict, target_dir: Path) -> bool:
     """ 
     Compare an origin file index with an index in an unknown target dir. 
     Returns true if mismatch.

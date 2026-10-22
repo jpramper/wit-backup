@@ -23,6 +23,11 @@ def unzip_contents (zip_file: Path, target_dir: Path) -> None:
     Unzips all files in zipfile to dest.
     """
     info(f"Unipping {zip_file}.")
+    
+    target_dir.mkdir(parents=True, exist_ok=True)
+    if not zip_file.is_file():
+        return
+
     with zipfile.ZipFile(zip_file, "r") as zip:
         zip.extractall(target_dir)
 

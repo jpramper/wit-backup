@@ -92,7 +92,8 @@ def parse_args () -> Namespace:
 
     # plain options
     parser.add_argument("-w", "--wary",
-        help="Prevent backup if origin is empty and target is not.",
+        help="Prevent backup if origin is empty and target is not. " \
+        "Prevent restore if target is not empty.",
         action="store_true",
     )
     parser.add_argument("-l", "--log",

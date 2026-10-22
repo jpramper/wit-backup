@@ -76,7 +76,7 @@ class TestZipContents:
         (origin / "subfolder").mkdir(parents=True)
         (origin / "file_a.txt").write_text("bang")
 
-        zip_file = zip_contents(origin, target)
+        zip_contents(origin, target)
 
         assert target.exists()
 
@@ -116,7 +116,7 @@ class TestZipContents:
 
         assert len(list(target.iterdir())) == 0
 
-    def test_dies_nothing_if_origin_equals_target(self, tmp_path: Path) -> None:
+    def test_does_nothing_if_origin_equals_target (self, tmp_path: Path) -> None:
         origin = (tmp_path / "origin")
         target = (tmp_path / "origin")
         (origin / "subfolder").mkdir(parents=True)

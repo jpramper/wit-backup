@@ -220,7 +220,50 @@ class TestRestore:
 
         backup(origin, target)
 
-        assert (target / INDEX_FILE).exists()
-        assert (target / BACKUP_FILE).exists()
+        restore_target = tmp_path / "restore"
 
-        pass
+        restore(target, restore_target)
+
+        assert (restore_target / "file_a.txt").exists()
+        assert (restore_target / "subfolder" / "file_b.txt").exists()
+        assert (restore_target / "subfolder").is_dir()
+
+    def test_returns_nonzero_when_wary_fullfills(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target) # create a basic backup
+
+        restore_target = tmp_path / "restore"
+        restore_target.mkdir()
+        (restore_target / "in_the_way.txt").write_text("content")
+
+        result = restore(target, restore_target, wary=True)
+
+        assert result == 6 # ensure non-zero matching wary
+        assert not (restore_target / "file_a.txt").exists()
+
+    def test_logs_timestamps_start_end_when_timestamp_active(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target)
+
+        restore_target = tmp_path / "restore"
+
+        restore(target, restore_target, timestamp=True)
+
+        assert (restore_target / TIMESTAMP_FILE).exists()
+        with open((restore_target / TIMESTAMP_FILE), "r") as l:
+            content = l.read()
+
+            assert "STARTED" in content
+            assert "COMPLETED" in content

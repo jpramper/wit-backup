@@ -28,8 +28,7 @@ LOG_FILE: str = "wb-runtime.log"
 
 
 class Mode (StrEnum):
-    """ Program operation modes.
-    """
+    """ Program operation modes. """
 
     BACKUP = "backup"
     
