@@ -85,12 +85,16 @@ def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
 
     target_dir.mkdir(parents=True, exist_ok=True) # ensure target counterpart exists
 
-    if changed:
-        write_index(origin_index, target_dir)
-
     if changed and len(origin_index) > 0:
         debug(f"backing up for {origin_dir}")
         zip_contents(origin_dir, target_dir)
+    elif changed and len(origin_index) == 0:
+        # todo, nuke old zip if exists
+        pass
+
+    # index should be written after zip so that interrupted backups can detect stale indexes
+    if changed:
+        write_index(origin_index, target_dir)
 
     for item in origin_dir.iterdir():
         if item.is_dir():

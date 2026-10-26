@@ -6,7 +6,6 @@ Backup is done on a per-folder basis: Files in every folder in the origin will b
 
 Restoration will restore the folder structure as it was backed up onto the specified target.
 
-
 ```
 origin
   ├── subfolder
@@ -32,6 +31,15 @@ As steps:
 3) If changes detected or no index is found, creates an updated index and zips files in current origin folder to the matching target folder.
 
 This program can recursively remove directories: SHOULD NOT BE RUN AS ROOT. Run backups with least privilege necessary.
+
+## Installation
+
+Requires python 3.12+
+
+Install a built wheel with 
+```
+pip install <wit_wheel>.whl
+```
 
 ## Running
 

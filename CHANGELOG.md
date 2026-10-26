@@ -5,6 +5,18 @@ Changes to wit-backup are logged here.
 
 ## [Unreleased]
 
+
+## [1.2.1] - 2026-10-26
+
+### Fixed
+- Modified backup script so that an unexpected interrupt (eg unexpected shutdown)
+does not leave an incomplete zip marked as completed. Next run will re-attempt it.
+
+
+## [1.2.0] - 2026-10-21
+
+Added backup restoration functionality.
+
 ### Removed
 - `-r` restore option flag
 
