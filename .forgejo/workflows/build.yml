@@ -36,5 +36,5 @@ jobs:
       - name: Publish wheel as workflow artifact
         uses: actions/upload-artifact@v3
         with:
-          name: wit-backup-${{ steps.get_version.outputs.version }}-${{ github.run_number }}"
+          name: wit-backup-${{ steps.get_version.outputs.version }}-${{ github.run_number }}
           path: dist/*.whl
