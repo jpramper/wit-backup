@@ -1,14 +1,6 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
-[build-system]
-requires = ["setuptools>=68.0.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-# ===============================================
 [project]
 name = "wit-backup"
 version = "1.2.1"
@@ -25,15 +17,24 @@ classifiers = [
 ]
 
 # ===============================================
-dependencies = []
 
-[project.optional-dependencies]
-dev = ["build", "pytest>=7", "pytest-cov>=7"]
+[build-system]
+requires = ["setuptools>=68.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 # ===============================================
 [project.scripts]
 # Format: command_name = "package.module:function"
 wit-backup = "wit_backup.main:main"
+
+# ===============================================
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["build", "pytest>=7", "pytest-cov>=7"]
 
 # ===============================================
 [tool.coverage.run]
