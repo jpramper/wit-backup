@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
+from unittest import mock
 from pytest import raises
 
 from wit_backup.index import (
@@ -159,10 +160,14 @@ class TestReadIndex:
         index_file = tmp_path / INDEX_FILE
         index_file.write_text("qwer.txt/12345678\n")
         
-        # remove read permission to trigger exception:
-        index_file.chmod(0o200)
-        
-        result = read_index(index_file)
+        real_open = open
+        def deny_open(file, *args, **kwargs):
+            if str(file) == str(index_file):
+                raise PermissionError(13, "Permission denied", str(file)) # 13 = EACCES
+            return real_open(file, *args, **kwargs)
+
+        with mock.patch("builtins.open", side_effect=deny_open):
+            result = read_index(index_file)
 
         assert result == dict()
 
