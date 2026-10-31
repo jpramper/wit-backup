@@ -17,8 +17,13 @@ from wit_backup.args import (
     parse_args,
     target_path,
     validate_origin_target,
+    validate_password,
 )
-from wit_backup.constants import Mode
+from wit_backup.constants import (
+    PASS_ENV_VAR,
+    PASSFILE_ENV_VAR,
+    Mode,
+)
 
 
 class TestOriginPath: 
@@ -117,6 +122,95 @@ class TestValidateOriginTarget:
         target = (tmp_path / "folder_b")
 
         validate_origin_target(origin, target)
+
+
+class TestValidatePassword:
+    """ Tests for validate_password function.
+    """
+
+    def test_raises_when_password_enabled_and_no_env_set(self, monkeypatch) -> None:
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+        monkeypatch.delenv(PASSFILE_ENV_VAR, raising=False)
+
+        with raises(ArgumentError) as exc_info:
+            validate_password(True)
+
+        assert "environment variable" in str(exc_info.value)
+
+    def test_raises_when_password_enabled_and_env_empty(self, monkeypatch) -> None:
+        monkeypatch.setenv(PASS_ENV_VAR, "")
+        monkeypatch.delenv(PASSFILE_ENV_VAR, raising=False)
+
+        with raises(ArgumentError):
+            validate_password(True)
+
+    def test_passes_when_password_disabled_and_no_env_set(self, monkeypatch) -> None:
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+        monkeypatch.delenv(PASSFILE_ENV_VAR, raising=False)
+
+        assert validate_password(False) is None
+
+    def test_returns_none_when_password_disabled_even_if_env_set(self, monkeypatch) -> None:
+        monkeypatch.setenv(PASS_ENV_VAR, "secret")
+
+        assert validate_password(False) is None
+
+    def test_returns_password_from_env(self, monkeypatch) -> None:
+        monkeypatch.setenv(PASS_ENV_VAR, "secret")
+        monkeypatch.delenv(PASSFILE_ENV_VAR, raising=False)
+
+        assert validate_password(True) == "secret"
+
+    def test_returns_password_from_passfile(self, monkeypatch, tmp_path: Path) -> None:
+        passfile = (tmp_path / "passfile.txt")
+        passfile.write_text("file secret")
+        monkeypatch.setenv(PASSFILE_ENV_VAR, str(passfile))
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+
+        assert validate_password(True) == "file secret"
+
+    def test_strips_newline_from_passfile(self, monkeypatch, tmp_path: Path) -> None:
+        passfile = (tmp_path / "passfile.txt")
+        passfile.write_text("file secret\n")
+        monkeypatch.setenv(PASSFILE_ENV_VAR, str(passfile))
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+
+        assert validate_password(True) == "file secret"
+
+    def test_raises_when_passfile_is_empty(self, monkeypatch, tmp_path: Path) -> None:
+        passfile = (tmp_path / "passfile.txt")
+        passfile.write_text("")
+        monkeypatch.setenv(PASSFILE_ENV_VAR, str(passfile))
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+
+        with raises(ArgumentError) as exc_info:
+            validate_password(True)
+
+        assert "is empty" in str(exc_info.value)
+
+    def test_raises_when_passfile_is_whitespace_only(self, monkeypatch, tmp_path: Path) -> None:
+        passfile = (tmp_path / "passfile.txt")
+        passfile.write_text("   \n\t\n")
+        monkeypatch.setenv(PASSFILE_ENV_VAR, str(passfile))
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+
+        with raises(ArgumentError):
+            validate_password(True)
+
+    def test_env_takes_precedence_over_passfile(self, monkeypatch, tmp_path: Path) -> None:
+        passfile = (tmp_path / "passfile.txt")
+        passfile.write_text("file secret")
+        monkeypatch.setenv(PASS_ENV_VAR, "secret")
+        monkeypatch.setenv(PASSFILE_ENV_VAR, str(passfile))
+
+        assert validate_password(True) == "secret"
+
+    def test_raises_when_passfile_does_not_exist(self, monkeypatch) -> None:
+        monkeypatch.setenv(PASSFILE_ENV_VAR, "/nonexistent/passfile.txt")
+        monkeypatch.delenv(PASS_ENV_VAR, raising=False)
+
+        with raises(FileNotFoundError):
+            validate_password(True)
 
 
 class TestModeArg:

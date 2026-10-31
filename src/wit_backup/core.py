@@ -71,6 +71,8 @@ def backup (
         target: Path, 
         wary: bool = False, 
         timestamp: bool = False,
+        pass_protect: bool = False,
+        password: str | None = None,
         ) -> int:
     """ Top-level backup logic.
     """
@@ -113,6 +115,8 @@ def restore (
         target: Path,
         wary: bool = False, 
         timestamp: bool = False,
+        pass_protect: bool = False,
+        password: str | None = None,
         ) -> int:
     """ Top-level restore logic.
     """

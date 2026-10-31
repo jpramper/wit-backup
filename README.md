@@ -53,6 +53,7 @@ wit-backup [opts] <origin> <destination> [<mode>]
   - `-t` append UTC timestamps of operation start/complete at a log file in target root (\<target\>/wb-timestamps.log)
   - `-l` write events into (\<target\>/wb-runtime.log) or if set, wherever `-L` specifies
   - `-L` specify a logfile to write events to. activates `-l` as well if set
+  - `-p` specify a password to use to lock/unlock zip files
   - `-d` delete destination folder before backup/restore (careful!)
   - `-v` added verbosity (debug messages added)
   - `-q` reduced verbosity (only errors print)

@@ -4,6 +4,7 @@
 """ Program arguments parsing and validation.
 """
 
+import os
 from argparse import (
     ArgumentError,
     ArgumentParser,
@@ -14,6 +15,8 @@ from pathlib import Path
 
 from .constants import (
     LOG_FILE,
+    PASS_ENV_VAR,
+    PASSFILE_ENV_VAR,
     TIMESTAMP_FILE,
     Mode,
 )
@@ -81,6 +84,37 @@ def validate_origin_target (origin: Path, target: Path) -> None:
         raise ArgumentError(None, "Origin and Target are the same folder")
 
 
+def validate_password (password: bool) -> str | None:
+    """ Validation for password option.
+
+    Returns:
+        Password from WIT_BACKUP_PASS, or stripped contents of the file
+        WIT_BACKUP_PASSFILE, if password option is enabled.
+        None if password option is not enabled.
+    """
+    if not password:
+        return None
+
+    pass_env = os.environ.get(PASS_ENV_VAR)
+    if pass_env:
+        return pass_env
+
+    passfile_env = os.environ.get(PASSFILE_ENV_VAR)
+    if passfile_env:
+        passfile = Path(passfile_env).read_text().strip()
+
+        if not passfile:
+            raise ArgumentError(None, f"Password file '{passfile_env}' is empty")
+
+        return passfile
+
+    raise ArgumentError(
+        None,
+        f"Option -p requires {PASS_ENV_VAR} or {PASSFILE_ENV_VAR} "
+        "environment variable to be set"
+    )
+
+
 def parse_args () -> Namespace:
     """ Command-line parser definitions for the module.
     """
@@ -94,6 +128,13 @@ def parse_args () -> Namespace:
         help=(
             "Prevent backup if origin is empty and target is not. "
             "Prevent restore if target is not empty."
+        ),
+        action="store_true",
+    )
+    parser.add_argument("-p", "--password",
+        help=(
+            f"Expect {PASS_ENV_VAR} or {PASSFILE_ENV_VAR} environment variables "
+            "to provide a password for locking / unlocking backup archives."
         ),
         action="store_true",
     )

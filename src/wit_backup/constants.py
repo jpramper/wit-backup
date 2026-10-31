@@ -26,6 +26,14 @@ LOG_FILE: str = "wb-runtime.log"
 """ default logfile for -l unless overridden by -L """
 
 
+PASS_ENV_VAR: str = "WIT_BACKUP_PASS"
+""" Environment variable holding the password for -p/--password """
+
+
+PASSFILE_ENV_VAR: str = "WIT_BACKUP_PASSFILE"
+""" Environment variable holding the path to a password file for -p/--password """
+
+
 class Mode (StrEnum):
     """ Program operation modes. """
 

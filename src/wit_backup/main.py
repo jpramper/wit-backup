@@ -12,6 +12,7 @@ import sys
 from .args import (
     parse_args,
     validate_origin_target,
+    validate_password,
 )
 from .constants import Mode
 from .core import (
@@ -32,6 +33,7 @@ def main () -> int:
     try:
         args = parse_args()
         validate_origin_target(args.origin, args.target)
+        pwd = validate_password(args.password)
 
         configure_logging(
             target=args.target,
@@ -52,13 +54,17 @@ def main () -> int:
                 args.target,
                 wary=args.wary,
                 timestamp=args.timestamp,
+                pass_protect=args.password,
+                password=pwd,
                 )
         else:
             backup(
                 args.origin, 
                 args.target, 
                 wary=args.wary, 
-                timestamp=args.timestamp
+                timestamp=args.timestamp,
+                pass_protect=args.password,
+                password=pwd,
                 )
 
     except Exception:
