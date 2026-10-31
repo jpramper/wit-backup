@@ -1,8 +1,8 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
 
 from wit_backup.constants import TIMESTAMP_FILE
 from wit_backup.log import (
@@ -30,7 +30,7 @@ class TestLogTimestamp:
     def test_returns_current_datetime_UTC(self, tmp_path: Path) -> None:
         dt = log_timestamp(tmp_path, "mode", "START")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # direct comparison would fail if dt not in utc
         assert dt.replace(microsecond=0) == now.replace(microsecond=0)
@@ -39,8 +39,8 @@ class TestLogTimestamp:
         entry = "START"
         time = log_timestamp(tmp_path, "mode", entry)
 
-        with open((tmp_path / TIMESTAMP_FILE), "r") as l:
-            content = l.read()
+        with open(tmp_path / TIMESTAMP_FILE) as log_file:
+            content = log_file.read()
 
             assert entry in content
             assert str(time.replace(microsecond=0)) in content

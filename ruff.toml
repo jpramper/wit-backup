@@ -1,0 +1,30 @@
+
+line-length = 100
+
+indent-width = 4
+
+target-version = "py312"
+
+exclude = [
+    ".egg-info",
+    ".git",
+    ".pyenv",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "build",
+    "dist",
+    "venv",
+]
+
+[lint]
+select = [
+    "E",      # pycodestyle - errors and warnings
+    "F",      # pyflakes - basic bugs, unused imports
+    "I",      # isort - import sorting
+    "B",      # flake8-bugbear - common design design flaws
+    "UP",     # pyupgrade - force modern syntax e.g. python 3.12+
+]
+
+ignore = []

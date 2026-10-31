@@ -4,17 +4,19 @@
 """ Core backup functionality.
 """
 
-from pathlib import Path
-from logging import debug, info
-from shutil import rmtree
+import logging
 import zipfile
+from pathlib import Path
+from shutil import rmtree
 
-from .index import (
-    create_index, 
-    write_index,
-    indexes_mismatch,
-)
 from .constants import BACKUP_FILE
+from .index import (
+    create_index,
+    indexes_mismatch,
+    write_index,
+)
+
+logger = logging.getLogger(__name__)
 
 
 def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
@@ -27,12 +29,12 @@ def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
         # symlinks must be handled first since is_dir stops 
         # detecting them when their target is gone
         if item.is_symlink() and not origin_equivalent.exists():
-            info(f"Symlink {item} is not in {origin_dir}; removing.")
+            logger.info(f"Symlink {item} is not in {origin_dir}; removing.")
             item.unlink()
             continue
 
         if item.is_dir() and not origin_equivalent.exists():
-            info(f"Folder {item} is not in {origin_dir}; removing.")
+            logger.info(f"Folder {item} is not in {origin_dir}; removing.")
             rmtree(item)
             continue
 
@@ -45,7 +47,7 @@ def zip_contents (origin_dir: Path, target_dir: Path) -> Path:
     Zips all files in origin to dest.
     Returns a path to the zipfile if created. Empty Path if no zipfile was created.
     """
-    info(f"Zipping {target_dir / BACKUP_FILE}.")
+    logger.info(f"Zipping {target_dir / BACKUP_FILE}.")
     zip_file = Path(target_dir, BACKUP_FILE)
 
     if origin_dir.resolve() == target_dir.resolve():
@@ -74,19 +76,19 @@ def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
     Main backup logic. Iterates recursively through folders comparing indexes
     and backing up where indexes mismatch.
     """
-    debug(f"===== traversing: {origin_dir}, {len(list(origin_dir.iterdir()))} items")
+    logger.debug(f"===== traversing: {origin_dir}, {len(list(origin_dir.iterdir()))} items")
     for item in origin_dir.iterdir():
-        debug(f"{"d" if item.is_dir() else "f"} {Path(item.name)} ")
+        logger.debug(f"{"d" if item.is_dir() else "f"} {Path(item.name)} ")
 
     origin_index = create_index(origin_dir)
     # compare index, store as "changed" if differ (return boolean)
     changed = indexes_mismatch(origin_index, target_dir)
-    debug(f"mismatched: {changed}")
+    logger.debug(f"mismatched: {changed}")
 
     target_dir.mkdir(parents=True, exist_ok=True) # ensure target counterpart exists
 
     if changed and len(origin_index) > 0:
-        debug(f"backing up for {origin_dir}")
+        logger.debug(f"backing up for {origin_dir}")
         zip_contents(origin_dir, target_dir)
     elif changed and len(origin_index) == 0:
         # todo, nuke old zip if exists

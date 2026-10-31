@@ -1,23 +1,24 @@
 # Copyright 2026 Juan Pablo Ramirez
 # SPDX-License-Identifier: MIT
 
-from pytest import raises
-from pathlib import Path
+import sys
 from argparse import (
     ArgumentError,
     ArgumentTypeError,
 )
-import sys
+from pathlib import Path
 
-from wit_backup.constants import Mode
+from pytest import raises
+
 from wit_backup.args import (
-    origin_path,
-    target_path,
-    mode_arg,
     log_file,
-    validate_origin_target,
+    mode_arg,
+    origin_path,
     parse_args,
+    target_path,
+    validate_origin_target,
 )
+from wit_backup.constants import Mode
 
 
 class TestOriginPath: 

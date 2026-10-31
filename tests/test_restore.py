@@ -2,16 +2,12 @@
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
-from zipfile import ZipFile
 
-from wit_backup.constants import (
-    BACKUP_FILE,
-)
-from wit_backup.restore import (
-    unzip_contents,
-    traverse_recursive_restore,
-)
 from wit_backup.backup import traverse_recursive_backup
+from wit_backup.restore import (
+    traverse_recursive_restore,
+    unzip_contents,
+)
 
 
 class TestUnzipContents:
@@ -69,7 +65,11 @@ class TestTraverseRecursiveRestore:
 
         assert target.exists()
     
-    def test_correctly_restores_empty_target (self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_correctly_restores_empty_target (
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         origin = folder_struct_with_files
         target = tmp_path / "target"
         traverse_recursive_backup(origin, target)
@@ -81,7 +81,11 @@ class TestTraverseRecursiveRestore:
         assert (restore_target / "subfolder" / "file_b.txt").exists()
 
 
-    def test_overwrites_conflicting_files_in_target (self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_overwrites_conflicting_files_in_target (
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         origin = folder_struct_with_files
         target = tmp_path / "target"
         traverse_recursive_backup(origin, target)
@@ -93,7 +97,11 @@ class TestTraverseRecursiveRestore:
 
         assert "file A" in (restore_target / "file_a.txt").read_text()
 
-    def test_correctly_restores_partial_tree (self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_correctly_restores_partial_tree (
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         origin = folder_struct_with_files
         target = tmp_path / "target"
         traverse_recursive_backup(origin, target)
@@ -105,7 +113,11 @@ class TestTraverseRecursiveRestore:
 
         assert "file A" in (origin / "file_a.txt").read_text()
 
-    def test_preserves_non_conflicting_files_in_target (self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_preserves_non_conflicting_files_in_target (
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         origin = folder_struct_with_files
         target = tmp_path / "target"
         traverse_recursive_backup(origin, target)

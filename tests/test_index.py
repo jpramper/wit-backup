@@ -3,15 +3,16 @@
 
 from pathlib import Path
 from unittest import mock
+
 from pytest import raises
 
+from wit_backup.constants import INDEX_FILE
 from wit_backup.index import (
     create_index,
-    write_index,
-    read_index,
     indexes_mismatch,
+    read_index,
+    write_index,
 )
-from wit_backup.constants import INDEX_FILE
 
 
 class TestCreateIndex:
@@ -43,7 +44,7 @@ class TestCreateIndex:
     def test_ignores_directories_and_symlinks (self, tmp_path: Path) -> None:
         (tmp_path / "file_a.txt").write_text("content")
         (tmp_path / "directory").mkdir()
-        (tmp_path / "symlink").symlink_to((tmp_path / "directory"))
+        (tmp_path / "symlink").symlink_to(tmp_path / "directory")
         
         index = create_index(tmp_path)
 
@@ -68,7 +69,7 @@ class TestCreateIndex:
     def test_returns_empty_index_nonexisting_dir (self, tmp_path: Path) -> None:
         index = create_index(tmp_path / "false")
 
-        assert index == dict()
+        assert index == {}
 
 
 class TestWriteIndex:
@@ -76,7 +77,7 @@ class TestWriteIndex:
     """
 
     def test_writes_empty_file_when_index_empty(self, tmp_path: Path) -> None:
-        index_file = write_index(dict(), tmp_path)
+        index_file = write_index({}, tmp_path)
 
         assert index_file.exists() and index_file.is_file()
         assert index_file.stat().st_size == 0
@@ -122,7 +123,7 @@ class TestReadIndex:
 
         result = read_index(index_file)
 
-        assert result == dict()
+        assert result == {}
 
     def test_returns_empty_index_when_target_incorrect_name(self, tmp_path: Path) -> None:
         index_file = tmp_path / "asdf.txt"
@@ -130,7 +131,7 @@ class TestReadIndex:
         
         result = read_index(index_file)
 
-        assert result == dict()
+        assert result == {}
 
     def test_reads_valid_index(self, tmp_path: Path) -> None:
         index_file = tmp_path / INDEX_FILE
@@ -154,7 +155,7 @@ class TestReadIndex:
         
         result = read_index(index_file)
 
-        assert result == dict()
+        assert result == {}
 
     def test_returns_empty_index_when_unable_open(self, tmp_path: Path) -> None:
         index_file = tmp_path / INDEX_FILE
@@ -169,7 +170,7 @@ class TestReadIndex:
         with mock.patch("builtins.open", side_effect=deny_open):
             result = read_index(index_file)
 
-        assert result == dict()
+        assert result == {}
 
 
 class TestIndexesMismatch:

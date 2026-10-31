@@ -7,20 +7,23 @@
 """
 
 import logging
+import sys
 
-from .constants import Mode
 from .args import (
-    parse_args, 
+    parse_args,
     validate_origin_target,
 )
+from .constants import Mode
 from .core import (
-    clean_target,
     backup,
+    clean_target,
     restore,
 )
 from .log import (
     configure_logging,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def main () -> int: 
@@ -40,7 +43,7 @@ def main () -> int:
 
         # Clean target if enabled, ensure target exists
         if args.delete:
-            logging.debug("===== Delete option active; nuking target.")
+            logger.debug("===== Delete option active; nuking target.")
             clean_target(args.target)
 
         if args.mode == Mode.RESTORE:
@@ -58,16 +61,16 @@ def main () -> int:
                 timestamp=args.timestamp
                 )
 
-    except Exception as e:
+    except Exception:
         # unexpected issues; extra logging for debugging
-        logging.exception("Unexpected error")
+        logger.exception("Unexpected error")
         return 1
 
     return 0
 
 
 def run ():
-    exit(main())
+    sys.exit(main())
 
 
 if __name__ == "__main__":

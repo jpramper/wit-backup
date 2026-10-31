@@ -7,17 +7,19 @@ filenames/hashes of files zipped in that folder.
 """
 
 import logging
-from pathlib import Path
 from hashlib import file_digest
+from pathlib import Path
 
 from .constants import INDEX_FILE
+
+logger = logging.getLogger(__name__)
 
 
 def create_index (dir: Path) -> dict:
     """ Create an index file with a list of filenames and their hash.
     """
-    logging.debug(f"----- creating index for {dir}")
-    index = dict()
+    logger.debug(f"----- creating index for {dir}")
+    index = {}
 
     if not dir.exists():
         return index
@@ -28,7 +30,7 @@ def create_index (dir: Path) -> dict:
                 # for every file in dir, get the hash and add to index dictionary
                 hash = file_digest(f, "md5")
                 index[item.name] = hash.hexdigest()
-                logging.debug(f"{item.name} {index[item.name]}")
+                logger.debug(f"{item.name} {index[item.name]}")
 
     return index
 
@@ -42,15 +44,14 @@ def write_index (index: dict, dir: Path) -> Path:
     # if no files, write empty index to signal folder was checked
     if len(index) == 0:
         index_filename.touch()
-        logging.debug(f"wrote EMPTY index for folder: {dir}")
+        logger.debug(f"wrote EMPTY index for folder: {dir}")
         return index_filename
 
     # write every dict item to new (overwrite) index file
     with open(index_filename, "w") as index_file:
-        for key, val in index.items():
-            index_file.write(f"{key}/{val}\n")
+        index_file.writelines(f"{key}/{val}\n" for key, val in index.items())
 
-    logging.debug(f"wrote index for folder: {dir}")
+    logger.debug(f"wrote index for folder: {dir}")
     return index_filename
 
 
@@ -63,7 +64,7 @@ def read_index (index_path: Path) -> dict:
     Returns:
         Empty index (dict) if no index file, populated otherwise. 
     """
-    index = dict()
+    index = {}
     if not index_path.exists() or index_path.name != INDEX_FILE:
         return index
 
@@ -71,16 +72,16 @@ def read_index (index_path: Path) -> dict:
         raise IsADirectoryError(f"{index_path} is not a file")
 
     try:
-      with open(index_path, "r") as i:
+      with open(index_path) as i:
           for line in i:
               if len(line.split("/")) == 2: # protection against empty lines
                   name, hash = line.split("/")
                   index[name] = hash.rstrip("\n")
-    except Exception as e:
-        logging.info(f"corrupted index at {index_path}")
-        index = dict()
+    except (OSError, UnicodeDecodeError):
+        logger.info(f"corrupted index at {index_path}")
+        index = {}
     
-    logging.debug(f"read index at {index_path}; {len(index)} items")
+    logger.debug(f"read index at {index_path}; {len(index)} items")
     return index
 
 
@@ -96,8 +97,4 @@ def indexes_mismatch (origin_index: dict, target_dir: Path) -> bool:
 
     # if it exists, read it and compare with origin index
     target_index = read_index(target_index_file)
-    if origin_index == target_index:
-        return False
-
-    # default to true; backup just in case
-    return True
+    return origin_index != target_index

@@ -4,15 +4,16 @@
 from pathlib import Path
 from zipfile import ZipFile
 
+from wit_backup.backup import (
+    remove_target_outliers,
+    traverse_recursive_backup,
+    zip_contents,
+)
 from wit_backup.constants import (
     BACKUP_FILE,
     INDEX_FILE,
 )
-from wit_backup.backup import (
-    remove_target_outliers,
-    zip_contents,
-    traverse_recursive_backup,
-)
+
 
 class TestRemoveTargetOutliers:
     """ Tests for remove_target_outliers function.
@@ -149,7 +150,11 @@ class TestTraverseRecursiveBackup:
 
         assert len(list(target.iterdir()))
 
-    def test_correctly_creates_initial_backup(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_correctly_creates_initial_backup(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         origin = folder_struct_with_files
         target = tmp_path / "target"
 
@@ -174,7 +179,11 @@ class TestTraverseRecursiveBackup:
             names = zf.namelist()
             assert "file_b.txt" in names
 
-    def test_does_nothing_if_no_changes(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_does_nothing_if_no_changes(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         """ 
         This should be a clone of test_correctly_creates_initial_backup
         except it runs traverse_recursive_backup twice
@@ -205,7 +214,11 @@ class TestTraverseRecursiveBackup:
             names = zf.namelist()
             assert "file_b.txt" in names
 
-    def test_correctly_updates_existing_backup_new_files(self, folder_struct_with_files: Path, tmp_path: Path) -> None:
+    def test_correctly_updates_existing_backup_new_files(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
         # perform first backup
         origin = folder_struct_with_files
         target = tmp_path / "target"

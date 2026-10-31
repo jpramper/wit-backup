@@ -4,9 +4,10 @@
 """ Custom fixtures for pytest unit tests.
 """
 
-import pytest
-from pathlib import Path
 import zipfile
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture

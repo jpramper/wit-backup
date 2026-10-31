@@ -5,9 +5,8 @@
 """
 
 import logging
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
-from typing import Optional
 from sys import stdout
 
 from .constants import (
@@ -21,7 +20,7 @@ def configure_logging (
         verbose: bool = False, 
         quiet: bool = False,
         log: bool = False,
-        log_file: Optional[Path] = None,
+        log_file: Path | None = None,
         ) -> None: # pragma: no cover
     log_level = logging.INFO
     if verbose:
@@ -48,7 +47,7 @@ def log_timestamp (dest: Path, mode: str, entry: str) -> datetime:
     Returns:
         (datetime) time stamped on the log
     """
-    date_time = datetime.now(timezone.utc).replace(microsecond = 0)
+    date_time = datetime.now(UTC).replace(microsecond = 0)
 
     with open(dest / TIMESTAMP_FILE, "a") as ts:
         ts.write(f"Wit-Backup {mode} {entry} - " + str(date_time) + "\n")

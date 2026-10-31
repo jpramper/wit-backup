@@ -19,3 +19,6 @@ testfolders
 
 # development build folders
 wit_backup.egg-info
+
+# ruff
+.ruff_cache

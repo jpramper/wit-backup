@@ -91,6 +91,14 @@ After setting up the dev env above, just run
 pytest
 ```
 
+## Scans & Linting
+
+Currently using ruff for linting and bandit for SAST:
+```
+ruff check
+bandit -r src/
+```
+
 ## Local Build
 
 Setuptools is used to package the wheel:

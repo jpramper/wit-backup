@@ -6,7 +6,6 @@
 
 from enum import StrEnum
 
-
 BACKUP_FILE: str = "_backup_.zip"
 """ Filename for backup files. Note if this changes, restores of backups made before the change 
 will fail to find the backup zip.

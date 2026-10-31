@@ -4,19 +4,18 @@
 """ Program arguments parsing and validation.
 """
 
-from pathlib import Path
 from argparse import (
-    ArgumentError, 
-    ArgumentTypeError,
-    Namespace, 
+    ArgumentError,
     ArgumentParser,
+    ArgumentTypeError,
+    Namespace,
 )
-from typing import Optional
+from pathlib import Path
 
 from .constants import (
-    Mode,
     LOG_FILE,
     TIMESTAMP_FILE,
+    Mode,
 )
 
 
@@ -92,12 +91,17 @@ def parse_args () -> Namespace:
 
     # plain options
     parser.add_argument("-w", "--wary",
-        help="Prevent backup if origin is empty and target is not. " \
-        "Prevent restore if target is not empty.",
+        help=(
+            "Prevent backup if origin is empty and target is not. "
+            "Prevent restore if target is not empty."
+        ),
         action="store_true",
     )
     parser.add_argument("-l", "--log",
-        help=f"Append log messages to a logfile at root of target. Defaults to {LOG_FILE} if -L is not set.",
+        help=(
+            "Append log messages to a logfile at root of target. "
+            f"Defaults to {LOG_FILE} if -L is not set."
+        ),
         action="store_true",
     )
     parser.add_argument("-t", "--timestamp",

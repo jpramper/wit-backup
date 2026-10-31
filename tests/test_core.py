@@ -4,18 +4,18 @@
 from pathlib import Path
 from shutil import rmtree
 
+from wit_backup.constants import (
+    BACKUP_FILE,
+    INDEX_FILE,
+    TIMESTAMP_FILE,
+)
 from wit_backup.core import (
-    wary_backup_check,
-    wary_restore_check,
+    backup,
     clean_target,
     reflect_directory_structure,
-    backup,
     restore,
-)
-from wit_backup.constants import (
-    INDEX_FILE,
-    BACKUP_FILE,
-    TIMESTAMP_FILE,
+    wary_backup_check,
+    wary_restore_check,
 )
 
 
@@ -198,8 +198,8 @@ class TestBackup:
         backup(origin, target, timestamp=True)
 
         assert (target / TIMESTAMP_FILE).exists()
-        with open((target / TIMESTAMP_FILE), "r") as l:
-            content = l.read()
+        with open(target / TIMESTAMP_FILE) as log_file:
+            content = log_file.read()
 
             assert "STARTED" in content
             assert "COMPLETED" in content
@@ -262,8 +262,8 @@ class TestRestore:
         restore(target, restore_target, timestamp=True)
 
         assert (restore_target / TIMESTAMP_FILE).exists()
-        with open((restore_target / TIMESTAMP_FILE), "r") as l:
-            content = l.read()
+        with open(restore_target / TIMESTAMP_FILE) as log_file:
+            content = log_file.read()
 
             assert "STARTED" in content
             assert "COMPLETED" in content
