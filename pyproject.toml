@@ -19,7 +19,12 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["build", "pytest>=7", "pytest-cov>=7"]
+dev = [
+    "build", 
+    "pytest>=7", 
+    "pytest-cov>=7",
+    "bandit[toml]>=1.8"
+]
 
 # ===============================================
 
