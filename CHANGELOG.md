@@ -8,6 +8,12 @@ Changes to wit-backup are logged here.
 
 
 
+## [1.3.1] - 2026-11-1
+
+### Changed
+- Index files now store file sizes instead of md5 hashes to detect changed files, making indexing faster.
+
+
 ## [1.3.0] - 2026-11-1
 
 ### Added

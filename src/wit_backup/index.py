@@ -3,11 +3,10 @@
 
 """
 Index file manipulation. Indexes are files created on every folder of the target with 
-filenames/hashes of files zipped in that folder.
+filenames/sizes of files zipped in that folder.
 """
 
 import logging
-from hashlib import file_digest
 from pathlib import Path
 
 from .constants import INDEX_FILE
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_index (dir: Path) -> dict:
-    """ Create an index file with a list of filenames and their hash.
+    """ Create an index file with a list of filenames and their size in bytes.
     """
     logger.debug(f"----- creating index for {dir}")
     index = {}
@@ -26,11 +25,8 @@ def create_index (dir: Path) -> dict:
 
     for item in dir.iterdir():
         if item.is_file():
-            with item.open("rb") as f:
-                # for every file in dir, get the hash and add to index dictionary
-                hash = file_digest(f, "md5")
-                index[item.name] = hash.hexdigest()
-                logger.debug(f"{item.name} {index[item.name]}")
+            index[item.name] = str(item.stat().st_size)
+            logger.debug(f"{item.name} {index[item.name]}")
 
     return index
 
@@ -75,8 +71,8 @@ def read_index (index_path: Path) -> dict:
       with open(index_path) as i:
           for line in i:
               if len(line.split("/")) == 2: # protection against empty lines
-                  name, hash = line.split("/")
-                  index[name] = hash.rstrip("\n")
+                  name, size = line.split("/")
+                  index[name] = size.rstrip("\n")
     except (OSError, UnicodeDecodeError):
         logger.info(f"corrupted index at {index_path}")
         index = {}

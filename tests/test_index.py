@@ -21,7 +21,7 @@ class TestCreateIndex:
 
     def test_creates_index_with_files (self, tmp_path: Path) -> None:
         (tmp_path / "file_a.txt").write_text("Oh boy!")
-        (tmp_path / "file_b.txt").write_text("content")
+        (tmp_path / "file_b.txt").write_text("contents")
         
         index = create_index(tmp_path)
 
@@ -32,14 +32,14 @@ class TestCreateIndex:
         assert isinstance(index["file_b.txt"], str)
         assert index["file_a.txt"] != index["file_b.txt"]
 
-    def test_creates_index_with_md5_hashes (self, tmp_path: Path) -> None:
+    def test_creates_index_with_file_sizes (self, tmp_path: Path) -> None:
         (tmp_path / "file_a.txt").write_text("jumping")
         (tmp_path / "file_b.txt").write_text("content")
         
         index = create_index(tmp_path)
 
-        assert len(index["file_a.txt"]) == 32
-        assert len(index["file_b.txt"]) == 32
+        assert index["file_a.txt"] == str(len("jumping"))
+        assert index["file_b.txt"] == str(len("content"))
 
     def test_ignores_directories_and_symlinks (self, tmp_path: Path) -> None:
         (tmp_path / "file_a.txt").write_text("content")
@@ -57,7 +57,7 @@ class TestCreateIndex:
 
         assert len(index) == 0
 
-    def test_same_content_same_hash (self, tmp_path: Path) -> None:
+    def test_same_content_same_size (self, tmp_path: Path) -> None:
         (tmp_path / "file_a.txt").write_text("content")
         (tmp_path / "file_b.txt").write_text("content")
         
