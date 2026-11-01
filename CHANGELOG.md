@@ -5,6 +5,11 @@ Changes to wit-backup are logged here.
 
 ## [Unreleased]
 
+
+
+
+## [1.3.0] - 2026-11-1
+
 ### Added
 - `-p` option to provide a password to use to lock/unlock backup zipfiles during a backup or a restore.
 
