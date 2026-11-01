@@ -228,6 +228,24 @@ class TestRestore:
         assert (restore_target / "subfolder" / "file_b.txt").exists()
         assert (restore_target / "subfolder").is_dir()
 
+    def test_basic_restore_with_password(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        # perform first backup with password
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        restore_target = tmp_path / "restore"
+
+        restore(target, restore_target, password="secret")
+
+        assert (restore_target / "file_a.txt").read_text() == "file A"
+        assert (restore_target / "subfolder" / "file_b.txt").read_text() == "file B"
+
     def test_returns_nonzero_when_wary_fullfills(
             self, 
             folder_struct_with_files: Path, 

@@ -5,9 +5,10 @@
 """
 
 import logging
-import zipfile
 from pathlib import Path
 from shutil import rmtree
+
+import pyzipper
 
 from .constants import BACKUP_FILE
 from .index import (
@@ -42,7 +43,7 @@ def remove_target_outliers (target_dir: Path, origin_dir: Path) -> None:
             remove_target_outliers(item, origin_equivalent)
 
 
-def zip_contents (origin_dir: Path, target_dir: Path) -> Path:
+def zip_contents (origin_dir: Path, target_dir: Path, password: str | None = None) -> Path:
     """ 
     Zips all files in origin to dest.
     Returns a path to the zipfile if created. Empty Path if no zipfile was created.
@@ -63,7 +64,13 @@ def zip_contents (origin_dir: Path, target_dir: Path) -> Path:
         # ensure target exists
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        with zipfile.ZipFile(zip_file, mode="w", compression=zipfile.ZIP_DEFLATED) as zip:
+        encryption = pyzipper.WZ_AES if password else None
+        with pyzipper.AESZipFile(
+                zip_file, mode="w", compression=pyzipper.ZIP_DEFLATED,
+                encryption=encryption,
+                ) as zip:
+            if password:
+                zip.setpassword(password.encode())
             for item in origin_dir.iterdir():
                 if item.is_file():
                     zip.write(item, arcname=item.name)
@@ -71,7 +78,11 @@ def zip_contents (origin_dir: Path, target_dir: Path) -> Path:
     return zip_file
 
 
-def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
+def traverse_recursive_backup (
+        origin_dir: Path, 
+        target_dir: Path, 
+        password: str | None = None
+        ) -> None:
     """ 
     Main backup logic. Iterates recursively through folders comparing indexes
     and backing up where indexes mismatch.
@@ -89,7 +100,7 @@ def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
 
     if changed and len(origin_index) > 0:
         logger.debug(f"backing up for {origin_dir}")
-        zip_contents(origin_dir, target_dir)
+        zip_contents(origin_dir, target_dir, password)
     elif changed and len(origin_index) == 0:
         # todo, nuke old zip if exists
         pass
@@ -100,4 +111,4 @@ def traverse_recursive_backup (origin_dir: Path, target_dir: Path) -> None:
 
     for item in origin_dir.iterdir():
         if item.is_dir():
-            traverse_recursive_backup(item, Path(target_dir, item.name))
+            traverse_recursive_backup(item, Path(target_dir, item.name), password)

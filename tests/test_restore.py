@@ -3,6 +3,8 @@
 
 from pathlib import Path
 
+from pytest import raises
+
 from wit_backup.backup import traverse_recursive_backup
 from wit_backup.restore import (
     traverse_recursive_restore,
@@ -50,6 +52,22 @@ class TestUnzipContents:
         unzip_contents(tmp_path / "UNEXISTANT.zip", tmp_path)
 
         assert len(list(tmp_path.iterdir())) == 0
+
+    def test_unzips_encrypted_zip_with_password(self, folder_with_encrypted_zip_file: Path) -> None:
+        target = folder_with_encrypted_zip_file / "target"
+        target.mkdir()
+
+        unzip_contents(folder_with_encrypted_zip_file / "secret.zip", target, password="secret")
+
+        assert (target / "file_a.txt").read_text() == "file A"
+        assert (target / "file_b.txt").read_text() == "file B"
+
+    def test_raises_on_wrong_password(self, folder_with_encrypted_zip_file: Path) -> None:
+        target = folder_with_encrypted_zip_file / "target"
+        target.mkdir()
+
+        with raises(RuntimeError):
+            unzip_contents(folder_with_encrypted_zip_file / "secret.zip", target, password="wrong")
 
 
 class TestTraverseRecursiveRestore:
@@ -129,3 +147,18 @@ class TestTraverseRecursiveRestore:
 
         assert "NON-CONFLICT" in (restore_target / "file_c.txt").read_text()
         assert (restore_target / "subfolder").exists()
+
+    def test_correctly_restores_encrypted_backup (
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+        traverse_recursive_backup(origin, target, password="secret")
+
+        restore_target = tmp_path / "restore"
+        traverse_recursive_restore(target, restore_target, password="secret")
+
+        assert (restore_target / "file_a.txt").read_text() == "file A"
+        assert (restore_target / "subfolder" / "file_b.txt").read_text() == "file B"

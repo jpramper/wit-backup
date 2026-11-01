@@ -5,8 +5,9 @@
 """
 
 import logging
-import zipfile
 from pathlib import Path
+
+import pyzipper
 
 from .constants import (
     BACKUP_FILE,
@@ -20,7 +21,7 @@ from .index import (
 logger = logging.getLogger(__name__)
 
 
-def unzip_contents (zip_file: Path, target_dir: Path) -> None:
+def unzip_contents (zip_file: Path, target_dir: Path, password: str | None = None) -> None:
     """ 
     Unzips all files in zipfile to dest.
     """
@@ -30,11 +31,17 @@ def unzip_contents (zip_file: Path, target_dir: Path) -> None:
     if not zip_file.is_file():
         return
 
-    with zipfile.ZipFile(zip_file, "r") as zip:
+    with pyzipper.AESZipFile(zip_file, "r") as zip:
+        if password:
+            zip.setpassword(password.encode())
         zip.extractall(target_dir)
 
 
-def traverse_recursive_restore (origin_dir: Path, target_dir: Path) -> None:
+def traverse_recursive_restore (
+        origin_dir: Path, 
+        target_dir: Path, 
+        password: str | None = None
+        ) -> None:
     """ 
     Main restore logic. Iterates recursively through folders comparing indexes
     and unzipping where indexes mismatch.
@@ -51,9 +58,9 @@ def traverse_recursive_restore (origin_dir: Path, target_dir: Path) -> None:
 
     if changed and len(origin_index) > 0:
         logger.debug(f"restoring {origin_dir}")
-        unzip_contents((origin_dir / BACKUP_FILE), target_dir)
+        unzip_contents((origin_dir / BACKUP_FILE), target_dir, password)
 
     for item in origin_dir.iterdir():
         if item.is_dir():
-            traverse_recursive_restore(item, Path(target_dir, item.name))
+            traverse_recursive_restore(item, Path(target_dir, item.name), password)
 

@@ -16,7 +16,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = []
+dependencies = [
+    "pyzipper>=0.4.0"
+]
 
 [project.optional-dependencies]
 dev = [

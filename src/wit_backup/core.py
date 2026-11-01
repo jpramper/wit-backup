@@ -71,7 +71,6 @@ def backup (
         target: Path, 
         wary: bool = False, 
         timestamp: bool = False,
-        pass_protect: bool = False,
         password: str | None = None,
         ) -> int:
     """ Top-level backup logic.
@@ -99,7 +98,7 @@ def backup (
     reflect_directory_structure(origin, target)
     
     # Iterate through origin folders, indexing and backing up each
-    traverse_recursive_backup(origin, target)
+    traverse_recursive_backup(origin, target, password)
 
     if timestamp:
         ts_c = log_timestamp(target, Mode.BACKUP.value, "COMPLETED")
@@ -115,7 +114,6 @@ def restore (
         target: Path,
         wary: bool = False, 
         timestamp: bool = False,
-        pass_protect: bool = False,
         password: str | None = None,
         ) -> int:
     """ Top-level restore logic.
@@ -139,7 +137,7 @@ def restore (
     reflect_directory_structure(origin, target)
     
     # Iterate through origin folders, indexing and restoring each
-    traverse_recursive_restore(origin, target)
+    traverse_recursive_restore(origin, target, password)
 
     if timestamp:
         ts_c = log_timestamp(target, Mode.RESTORE.value, "COMPLETED")

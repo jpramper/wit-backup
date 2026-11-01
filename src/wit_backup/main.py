@@ -54,7 +54,6 @@ def main () -> int:
                 args.target,
                 wary=args.wary,
                 timestamp=args.timestamp,
-                pass_protect=args.password,
                 password=pwd,
                 )
         else:
@@ -63,7 +62,6 @@ def main () -> int:
                 args.target, 
                 wary=args.wary, 
                 timestamp=args.timestamp,
-                pass_protect=args.password,
                 password=pwd,
                 )
 

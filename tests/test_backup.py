@@ -4,6 +4,9 @@
 from pathlib import Path
 from zipfile import ZipFile
 
+import pyzipper
+from pytest import raises
+
 from wit_backup.backup import (
     remove_target_outliers,
     traverse_recursive_backup,
@@ -93,6 +96,32 @@ class TestZipContents:
         with ZipFile(zip_file, mode="r") as zf:
             names = zf.namelist()
             assert "file_a.txt" in names
+
+    def test_zips_files_encrypted_with_password(self, tmp_path: Path) -> None:
+        origin = (tmp_path / "origin")
+        target = (tmp_path / "target")
+        origin.mkdir()
+        target.mkdir()
+        (origin / "file_a.txt").write_text("bang")
+
+        zip_file = zip_contents(origin, target, password="secret")
+
+        with pyzipper.AESZipFile(zip_file, mode="r") as zf:
+            zf.setpassword(b"secret")
+            assert zf.read("file_a.txt") == b"bang"
+
+    def test_encrypted_zip_not_readable_without_password(self, tmp_path: Path) -> None:
+        origin = (tmp_path / "origin")
+        target = (tmp_path / "target")
+        origin.mkdir()
+        target.mkdir()
+        (origin / "file_a.txt").write_text("bang")
+
+        zip_file = zip_contents(origin, target, password="secret")
+
+        with raises(RuntimeError):
+            with ZipFile(zip_file, mode="r") as zf:
+                zf.read("file_a.txt")
 
     def test_ignores_directories(self, tmp_path: Path) -> None:
         origin = (tmp_path / "origin")
@@ -238,3 +267,22 @@ class TestTraverseRecursiveBackup:
             assert "file_a.txt" in names
             assert "file_c.txt" in names
 
+    def test_correctly_creates_encrypted_backup(
+            self, 
+            folder_struct_with_files: Path, 
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        traverse_recursive_backup(origin, target, password="secret")
+
+        assert (target / BACKUP_FILE).exists()
+        assert (target / "subfolder" / BACKUP_FILE).exists()
+
+        with pyzipper.AESZipFile((target / BACKUP_FILE), mode="r") as zf:
+            zf.setpassword(b"secret")
+            assert "file_a.txt" in zf.namelist()
+        with pyzipper.AESZipFile((target / "subfolder" / BACKUP_FILE), mode="r") as zf:
+            zf.setpassword(b"secret")
+            assert "file_b.txt" in zf.namelist()
