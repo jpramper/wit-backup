@@ -18,6 +18,7 @@ from .constants import Mode
 from .core import (
     backup,
     clean_target,
+    password_test,
     restore,
 )
 from .log import (
@@ -49,6 +50,9 @@ def main () -> int:
             clean_target(args.target)
 
         if args.mode == Mode.RESTORE:
+            if not password_test(Mode.RESTORE, args.origin, pwd):
+                logger.debug("Password test failed. Aborting.")
+                return 7
             restore(
                 args.origin, 
                 args.target,
@@ -57,6 +61,9 @@ def main () -> int:
                 password=pwd,
                 )
         else:
+            if not password_test(Mode.BACKUP, args.target, pwd):
+                logger.debug("Password test failed. Aborting.")
+                return 7
             backup(
                 args.origin, 
                 args.target, 

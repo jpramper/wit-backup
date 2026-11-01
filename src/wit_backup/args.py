@@ -135,6 +135,8 @@ def parse_args () -> Namespace:
         help=(
             f"Expect {PASS_ENV_VAR} or {PASSFILE_ENV_VAR} environment variables "
             "to provide a password for locking / unlocking backup archives."
+            "Note once a backup has been made it cannot be password-protected, "
+            "nor can a password-protected backup change the password."
         ),
         action="store_true",
     )

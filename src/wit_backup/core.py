@@ -8,11 +8,16 @@ import logging
 from pathlib import Path
 from shutil import rmtree
 
+import pyzipper
+
 from .backup import (
     remove_target_outliers,
     traverse_recursive_backup,
 )
-from .constants import Mode
+from .constants import (
+    BACKUP_FILE,
+    Mode,
+)
 from .log import (
     log_timestamp,
 )
@@ -64,6 +69,78 @@ def reflect_directory_structure (origin_dir: Path, target_dir: Path) -> None:
             target_equivalent = Path(target_dir, item.name)
             target_equivalent.mkdir(parents=True, exist_ok=True)
             reflect_directory_structure(item, target_equivalent)
+
+
+def find_backup_file (target_dir: Path) -> Path | None:
+    """ Recursively searches <target_dir> for a BACKUP_FILE.
+    
+    Returns the path to the first one found, or None if not found.
+    """
+    if not target_dir.is_dir():
+        return None
+
+    backup_file = Path(target_dir, BACKUP_FILE)
+    if backup_file.is_file():
+        return backup_file
+
+    for item in target_dir.iterdir():
+        if item.is_dir() and not item.is_symlink():
+            found = find_backup_file(item)
+            if found is not None:
+                return found
+
+    return None
+
+
+def password_test (mode: Mode, target_dir: Path, password: str | None = None) -> bool:
+    """ Validates that password supplied applies to archives in target.
+
+    Recursively searches target_dir for a previous backup file. If none is found,
+    fresh backup or restore is assumed and the test passes.
+    If a backup file is found, ensures it is not password protected when no
+    password is supplied, or that it is password protected and can be opened
+    with the supplied password when one is.
+    """
+    backup_file = find_backup_file(target_dir)
+
+    if backup_file is None:
+        logger.info(f"No backup file found in target; assuming fresh {mode.value}.")
+        return True
+
+    logger.debug(f"Testing password against existing backup file: {backup_file}")
+
+    with pyzipper.AESZipFile(backup_file, "r") as zip:
+        protected = any(info.flag_bits & 0x1 for info in zip.infolist())
+
+        if password is None:
+            # ensure the archive is not password protected
+            if protected:
+                logger.error(
+                    f"Backup file {backup_file} is password protected, "
+                    "but no password was supplied."
+                )
+                return False
+        elif not protected:
+            # ensure the archive is password protected
+            logger.error(
+                f"Backup file {backup_file} is not password protected, "
+                "but a password was supplied."
+            )
+            return False
+        else:
+            # ensure the archive can be opened with the supplied password
+            zip.setpassword(password.encode())
+            try:
+                zip.testzip()
+            except RuntimeError as e:
+                logger.error(
+                    f"Backup file {backup_file} could not be opened "
+                    f"with the supplied password: {e}"
+                )
+                return False
+
+    logger.info(f"Password test passed for {mode.value}.")
+    return True
 
 
 def backup (

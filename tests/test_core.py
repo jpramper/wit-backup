@@ -3,15 +3,22 @@
 
 from pathlib import Path
 from shutil import rmtree
+from zipfile import (
+    ZIP_STORED,
+    ZipFile,
+)
 
 from wit_backup.constants import (
     BACKUP_FILE,
     INDEX_FILE,
     TIMESTAMP_FILE,
+    Mode,
 )
 from wit_backup.core import (
     backup,
     clean_target,
+    find_backup_file,
+    password_test,
     reflect_directory_structure,
     restore,
     wary_backup_check,
@@ -142,6 +149,174 @@ class TestCleanTarget:
         clean_target(target)
 
         assert len(list(target.iterdir())) == 0
+
+
+class TestFindBackupFile:
+    """ Tests for find_backup_file function.
+    """
+
+    def test_returns_none_when_no_backup_file(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        target.mkdir()
+        (target / "file_a.txt").write_text("content")
+
+        assert find_backup_file(target) is None
+
+    def test_returns_none_when_target_does_not_exist(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+
+        assert find_backup_file(target) is None
+
+    def test_returns_backup_file_in_root(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        target.mkdir()
+        (target / BACKUP_FILE).write_bytes(b"zipdata")
+
+        assert find_backup_file(target) == (target / BACKUP_FILE)
+
+    def test_returns_nested_backup_file(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        (target / "subfolder" / "nested").mkdir(parents=True)
+        (target / "subfolder" / "nested" / BACKUP_FILE).write_bytes(b"zipdata")
+
+        assert find_backup_file(target) == (target / "subfolder" / "nested" / BACKUP_FILE)
+
+    def test_ignores_symlinked_folders(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        backup_store = (tmp_path / "backup_store")
+        backup_store.mkdir()
+        (backup_store / BACKUP_FILE).write_bytes(b"zipdata")
+        target.mkdir()
+        (target / "symlink").symlink_to(backup_store)
+
+        assert find_backup_file(target) is None
+
+
+class TestPasswordTest:
+    """ Tests for password_test function.
+    """
+
+    def test_returns_true_when_no_backup_file_found(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        target.mkdir()
+        (target / "file_a.txt").write_text("content")
+
+        assert password_test(Mode.BACKUP, target, None) is True
+
+    def test_returns_true_when_no_backup_file_found_restore_mode(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+        target.mkdir()
+
+        assert password_test(Mode.RESTORE, target, None) is True
+
+    def test_returns_true_when_target_does_not_exist(self, tmp_path: Path) -> None:
+        target = (tmp_path / "target")
+
+        assert password_test(Mode.BACKUP, target, None) is True
+
+    def test_returns_true_with_plain_backup_and_no_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target)
+
+        assert password_test(Mode.BACKUP, target, None) is True
+
+    def test_returns_false_with_plain_backup_and_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        # plain archives cannot be opened with a password
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target)
+
+        assert password_test(Mode.BACKUP, target, "anything") is False
+
+    def test_returns_true_with_encrypted_backup_and_correct_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        assert password_test(Mode.BACKUP, target, "secret") is True
+
+    def test_returns_false_with_encrypted_backup_and_no_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        assert password_test(Mode.BACKUP, target, None) is False
+
+    def test_returns_false_with_encrypted_backup_and_wrong_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        assert password_test(Mode.BACKUP, target, "wrong") is False
+
+    def test_returns_false_when_backup_file_corrupted(self, tmp_path: Path) -> None:
+        # craft a backup file whose content no longer matches its CRC
+        target = (tmp_path / "target")
+        target.mkdir()
+        zip_file = (target / BACKUP_FILE)
+        with ZipFile(zip_file, "w", compression=ZIP_STORED) as zf:
+            zf.writestr("file_a.txt", "file A")
+        with open(zip_file, "r+b") as f:
+            # flip one byte of the stored content
+            f.seek(40)
+            f.write(b"X")
+
+        assert password_test(Mode.BACKUP, target, "secret") is False
+
+    def test_returns_false_in_restore_mode_with_wrong_password(
+            self,
+            folder_struct_with_files: Path,
+            tmp_path: Path
+            ) -> None:
+        origin = folder_struct_with_files
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        assert password_test(Mode.RESTORE, target, "wrong") is False
+
+    def test_returns_true_when_only_nested_backup_exists(
+            self,
+            folder_struct: Path,
+            tmp_path: Path
+            ) -> None:
+        # only subfolder has files, so only subfolder gets a backup file
+        origin = folder_struct
+        (origin / "subfolder" / "file_b.txt").write_text("file B")
+        target = tmp_path / "target"
+
+        backup(origin, target, password="secret")
+
+        assert password_test(Mode.BACKUP, target, "secret") is True
+        assert password_test(Mode.BACKUP, target, "wrong") is False
+
+
         assert target.exists()
 
 
